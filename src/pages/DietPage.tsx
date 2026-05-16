@@ -18,9 +18,9 @@ const mealColors: Record<string, string> = {
 };
 
 export default function DietPage() {
-  const [state, setState] = useState(() => loadState());
+  const [state, setState] = useSyncState();
   const today = getToday();
-  const [dietLog, setDietLog] = useState<DietLog>(() => getDietLog(state.dietLogs || [], today, state.settings?.meals || []));
+  const dietLog = useMemo(() => getDietLog(state.dietLogs || [], today, state.settings?.meals || []), [state.dietLogs, today, state.settings?.meals]);
   const weekScore = useMemo(() => getWeeklyDietScore(state.dietLogs || [], state.startDate), [state]);
   const waterGoal = state.settings?.dailyWaterGoal || 10;
   const ft = state.settings?.featureToggles || ({} as any);
@@ -32,7 +32,7 @@ export default function DietPage() {
   const weekStart = useMemo(() => {
     const d = new Date(today);
     d.setDate(d.getDate() - d.getDay());
-    return d.toISOString().split('T')[0];
+    return formatDate(d);
   }, [today]);
   const cheatUsedThisWeek = useMemo(() => {
     if (!state.dietLogs) return false;
@@ -45,25 +45,15 @@ export default function DietPage() {
   }, [state.dietLogs, weekStart]);
 
   const persist = useCallback((updated: DietLog) => {
-    setDietLog(updated);
-    const s = loadState();
-    s.dietLogs = (s.dietLogs || []).filter(d => d.date !== today);
-    s.dietLogs.push(updated);
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.dietLogs = (s.dietLogs || []).filter(d => d.date !== today);
+      s.dietLogs.push(updated);
+    });
   }, [today]);
 
   const refreshState = useCallback(() => setState(loadState()), []);
 
-  useEffect(() => {
-    const handler = () => {
-      const s = loadState();
-      setState(s);
-      setDietLog(getDietLog(s.dietLogs, today, s.settings.meals));
-    };
-    window.addEventListener("transform90:state-changed", handler);
-    return () => window.removeEventListener("transform90:state-changed", handler);
-  }, [today]);
+  // useEffect removed as useSyncState and useMemo handle reactivity now
 
   // Food entries helpers
   const foodEntries = dietLog.foodEntries || [];

@@ -3,15 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { loadState, saveState, calculateBodyFat, getMonthlyGrade, generateWeeklySummary, getWeekNumber, checkAndAwardBadges, getWeeklyMuscleVolume, estimateStrengthScore, getMindfulnessStreak, calculateRecoveryScore, getTodayWorkoutType } from "@/lib/store";
+import { loadState, patchState, useSyncState, calculateBodyFat, getMonthlyGrade, generateWeeklySummary, getWeekNumber, checkAndAwardBadges, getWeeklyMuscleVolume, estimateStrengthScore, getMindfulnessStreak, calculateRecoveryScore, getTodayWorkoutType, getToday, formatDate } from "@/lib/store";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from "recharts";
 import { toast } from "sonner";
 import { fireConfetti } from "@/lib/confetti";
 import MuscleHeatMap from "@/components/MuscleHeatMap";
 import { Camera, Zap, Wind, Trophy, Database, ChevronRight, History, TrendingUp, Activity } from "lucide-react";
 import { playClick, hapticPulse } from "@/lib/audio";
+
 export default function ProgressPage() {
-  const [state, setState] = useState(() => loadState());
+  const [state, setState] = useSyncState();
   const [weight, setWeight] = useState("");
   const [waist, setWaist] = useState("");
   const [pushups, setPushups] = useState("");
@@ -35,7 +36,7 @@ export default function ProgressPage() {
     const last14Days = Array.from({ length: 14 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (13 - i));
-      const ds = d.toISOString().split('T')[0];
+      const ds = formatDate(d);
       
       const workout = state.workoutLogs.find(l => l.date === ds);
       const sleep = state.sleepLogs.find(l => l.date === ds);
@@ -75,30 +76,29 @@ export default function ProgressPage() {
 
   const logProgress = () => {
     handleInteraction();
-    const today = new Date().toISOString().split('T')[0];
-    const s = loadState();
-    const entry = {
-      date: today,
-      weight: weight ? parseFloat(weight) : null,
-      waist: waist ? parseFloat(waist) : null,
-      pushups: pushups ? parseInt(pushups) : null,
-    };
-    s.progressEntries = s.progressEntries.filter(e => e.date !== today);
-    s.progressEntries.push(entry);
-    if (entry.weight) s.currentWeight = entry.weight;
-    if (entry.waist) s.currentWaist = entry.waist;
+    const today = getToday();
+    patchState(s => {
+      const entry = {
+        date: today,
+        weight: weight ? parseFloat(weight) : null,
+        waist: waist ? parseFloat(waist) : null,
+        pushups: pushups ? parseInt(pushups) : null,
+      };
+      s.progressEntries = s.progressEntries.filter(e => e.date !== today);
+      s.progressEntries.push(entry);
+      if (entry.weight) s.currentWeight = entry.weight;
+      if (entry.waist) s.currentWaist = entry.waist;
 
-    if (ft.bodyMeasurements && (chest || leftArm || rightArm || leftThigh || rightThigh || hips)) {
-      s.bodyMeasurements = s.bodyMeasurements.filter(m => m.date !== today);
-      s.bodyMeasurements.push({
-        date: today, chest: parseFloat(chest), leftArm: parseFloat(leftArm), rightArm: parseFloat(rightArm),
-        leftThigh: parseFloat(leftThigh), rightThigh: parseFloat(rightThigh), hips: parseFloat(hips)
-      });
-    }
+      if (ft.bodyMeasurements && (chest || leftArm || rightArm || leftThigh || rightThigh || hips)) {
+        s.bodyMeasurements = s.bodyMeasurements.filter(m => m.date !== today);
+        s.bodyMeasurements.push({
+          date: today, chest: parseFloat(chest), leftArm: parseFloat(leftArm), rightArm: parseFloat(rightArm),
+          leftThigh: parseFloat(leftThigh), rightThigh: parseFloat(rightThigh), hips: parseFloat(hips)
+        });
+      }
 
-    if (ft.xpSystem && (entry.weight || entry.waist)) s.xp = (s.xp || 0) + 20;
-    saveState(s);
-    setState(s);
+      if (ft.xpSystem && (entry.weight || entry.waist)) s.xp = (s.xp || 0) + 20;
+    });
     setWeight(""); setWaist(""); setPushups("");
     setChest(""); setLeftArm(""); setRightArm(""); setLeftThigh(""); setRightThigh(""); setHips("");
     toast.success("Logged.");
@@ -114,17 +114,16 @@ export default function ProgressPage() {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
-        const today = new Date().toISOString().split('T')[0];
-        const s = loadState();
-        let entry = s.progressEntries.find(e => e.date === today);
-        if (!entry) {
-          entry = { date: today, weight: null, waist: null, pushups: null };
-          s.progressEntries.push(entry);
-        }
-        if (type === 'front') entry.photoFront = reader.result as string;
-        else entry.photoSide = reader.result as string;
-        saveState(s);
-        setState(s);
+        const today = getToday();
+        patchState(s => {
+          let entry = s.progressEntries.find(e => e.date === today);
+          if (!entry) {
+            entry = { date: today, weight: null, waist: null, pushups: null };
+            s.progressEntries.push(entry);
+          }
+          if (type === 'front') entry.photoFront = reader.result as string;
+          else entry.photoSide = reader.result as string;
+        });
         toast.success("Photo saved.");
       };
       reader.readAsDataURL(file);

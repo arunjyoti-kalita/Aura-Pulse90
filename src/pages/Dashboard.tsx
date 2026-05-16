@@ -9,7 +9,7 @@ import SleepCheckIn from "@/components/SleepCheckIn";
 import StressCheckIn from "@/components/StressCheckIn";
 import RecoveryScoreCard from "@/components/RecoveryScoreCard";
 import WellnessScoreCard from "@/components/WellnessScoreCard";
-import { loadState, saveState, getDayNumber, getWeekNumber, getTodayWorkoutType, getStreak, getWeekWorkoutCount, getConsecutiveWorkoutDays, getWeeklyChallenge, getLevel, getDietLog, getToday, calculateRecoveryScore, calculateWellnessScore, calculateSleepHours, getMindfulnessStreak, calculateSkippedDays } from "@/lib/store";
+import { loadState, saveState, useSyncState, getDayNumber, getWeekNumber, getTodayWorkoutType, getStreak, getWeekWorkoutCount, getConsecutiveWorkoutDays, getWeeklyChallenge, getLevel, getDietLog, getToday, calculateRecoveryScore, calculateWellnessScore, calculateSleepHours, getMindfulnessStreak, calculateSkippedDays } from "@/lib/store";
 import { getDailyQuote, getDailyTip } from "@/lib/quotes";
 import { shouldShowBackupReminder, dismissBackupReminder, consumeRestoreVerificationNotice, ensureWeeklyRestorePoint, type RestoreVerificationNotice } from "@/lib/backup";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -20,7 +20,7 @@ import type { DietLog } from "@/lib/store";
 import { playClick, hapticPulse } from "@/lib/audio";
 
 export default function Dashboard() {
-  const [state, setState] = useState(() => loadState());
+  const [state, setState] = useSyncState();
   const navigate = useNavigate();
   const [, setTick] = useState(0);
 
@@ -28,15 +28,6 @@ export default function Dashboard() {
     playClick();
     hapticPulse('light');
     if (cb) cb();
-  }, []);
-
-  useEffect(() => {
-    const handler = () => {
-      setState(loadState());
-      setTick(t => t + 1);
-    };
-    window.addEventListener("transform90:state-changed", handler);
-    return () => window.removeEventListener("transform90:state-changed", handler);
   }, []);
   const skippedDays = calculateSkippedDays(state.startDate, state.workoutLogs, state.settings.weeklySchedule);
   const day = getDayNumber(state.startDate, skippedDays);
@@ -77,10 +68,9 @@ export default function Dashboard() {
   }, []);
 
   const saveWhy = useCallback(() => {
-    const s = loadState();
-    s.whyIStarted = whyText;
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.whyIStarted = whyText;
+    });
     setShowWhyDialog(false);
   }, [whyText]);
 
@@ -94,12 +84,11 @@ export default function Dashboard() {
   }, []);
 
   const logMood = useCallback((mood: 'Motivated' | 'Tired' | 'Stressed' | 'Strong' | 'Struggling') => {
-    const s = loadState();
-    s.moodEntries = s.moodEntries.filter(m => m.date !== today);
-    s.moodEntries.push({ date: today, mood });
-    s.lastMoodCheckDate = today;
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.moodEntries = s.moodEntries.filter(m => m.date !== today);
+      s.moodEntries.push({ date: today, mood });
+      s.lastMoodCheckDate = today;
+    });
     setShowMood(false);
   }, [today]);
 
@@ -110,22 +99,21 @@ export default function Dashboard() {
     const milestone = state.settings.milestones.find(m => day >= m.day && m.week > state.lastMilestoneCelebrated);
     if (milestone) {
       setShowMilestone(milestone);
-      const s = loadState();
-      s.lastMilestoneCelebrated = milestone.week;
-      saveState(s);
+      patchState(s => {
+        s.lastMilestoneCelebrated = milestone.week;
+      });
     }
   }, []);
 
   // Water tracking
   const dietLog = useMemo(() => getDietLog(state.dietLogs, today, state.settings.meals), [state, today]);
   const addWater = useCallback(() => {
-    const s = loadState();
-    const log: DietLog = getDietLog(s.dietLogs, today, s.settings.meals);
-    log.waterGlasses = Math.min(20, log.waterGlasses + 1);
-    s.dietLogs = s.dietLogs.filter(d => d.date !== today);
-    s.dietLogs.push(log);
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      const log: DietLog = getDietLog(s.dietLogs, today, s.settings.meals);
+      log.waterGlasses = Math.min(20, log.waterGlasses + 1);
+      s.dietLogs = s.dietLogs.filter(d => d.date !== today);
+      s.dietLogs.push(log);
+    });
   }, [today]);
 
   // Sleep check-in
@@ -135,13 +123,12 @@ export default function Dashboard() {
   }, []);
 
   const logSleep = useCallback((bedtime: string, wakeTime: string, quality: number) => {
-    const s = loadState();
     const hours = calculateSleepHours(bedtime, wakeTime);
-    s.sleepLogs = s.sleepLogs.filter(l => l.date !== today);
-    s.sleepLogs.push({ date: today, bedtime, wakeTime, quality, hoursSlept: hours });
-    s.lastSleepCheckDate = today;
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.sleepLogs = s.sleepLogs.filter(l => l.date !== today);
+      s.sleepLogs.push({ date: today, bedtime, wakeTime, quality, hoursSlept: hours });
+      s.lastSleepCheckDate = today;
+    });
     setShowSleepCheckIn(false);
   }, [today]);
 
@@ -152,12 +139,11 @@ export default function Dashboard() {
   }, []);
 
   const logStress = useCallback((level: 'Low' | 'Medium' | 'High') => {
-    const s = loadState();
-    s.stressEntries = s.stressEntries.filter(e => e.date !== today);
-    s.stressEntries.push({ date: today, level });
-    s.lastStressCheckDate = today;
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.stressEntries = s.stressEntries.filter(e => e.date !== today);
+      s.stressEntries.push({ date: today, level });
+      s.lastStressCheckDate = today;
+    });
     setShowStress(false);
   }, [today]);
 
@@ -197,11 +183,10 @@ export default function Dashboard() {
   const hasRestLog = state.restDayLogs.some(r => r.date === today);
 
   const logRestDay = useCallback((activity: 'Full Rest' | 'Light Walk' | 'Stretching' | 'Yoga' | 'Other') => {
-    const s = loadState();
-    s.restDayLogs = s.restDayLogs.filter(r => r.date !== today);
-    s.restDayLogs.push({ date: today, activity });
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.restDayLogs = s.restDayLogs.filter(r => r.date !== today);
+      s.restDayLogs.push({ date: today, activity });
+    });
     setShowRestLog(false);
   }, [today]);
 

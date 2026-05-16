@@ -643,7 +643,7 @@ export const defaultSettings: AppSettings = {
 };
 
 const defaultState: AppState = {
-  startDate: new Date().toISOString().split('T')[0],
+  startDate: getToday(),
   workoutLogs: [],
   dietLogs: [],
   progressEntries: [],
@@ -720,6 +720,22 @@ export function loadState(): AppState {
   return { ...defaultState };
 }
 
+import { useState, useEffect } from "react";
+
+export function useSyncState() {
+  const [state, setState] = useState(() => loadState());
+
+  useEffect(() => {
+    const handler = () => {
+      setState(loadState());
+    };
+    window.addEventListener("transform90:state-changed", handler);
+    return () => window.removeEventListener("transform90:state-changed", handler);
+  }, []);
+
+  return [state, setState] as const;
+}
+
 export function saveState(state: AppState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   if (typeof window !== "undefined") {
@@ -727,17 +743,29 @@ export function saveState(state: AppState) {
   }
 }
 
-export function getToday(): string {
-  const d = new Date();
+export function formatDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export function getToday(): string {
+  return formatDate(new Date());
+}
+
+export function parseSafe(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export function patchState(updater: (s: AppState) => void) {
+  const s = loadState();
+  updater(s);
+  saveState(s);
 }
 
 export function calculateSkippedDays(startDate: string, workoutLogs: WorkoutLog[], schedule?: string[]): number {
   const sched = schedule || ['A', 'B', 'C', 'A', 'B', 'Rest', 'Rest'];
-  const start = new Date(startDate);
-  start.setHours(0,0,0,0);
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const start = parseSafe(startDate);
+  const today = parseSafe(getToday());
 
   const daysDiff = Math.floor((today.getTime() - start.getTime()) / 86400000);
 
@@ -745,7 +773,7 @@ export function calculateSkippedDays(startDate: string, workoutLogs: WorkoutLog[
   for (let i = 0; i < daysDiff; i++) {
     const d = new Date(start);
     d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = formatDate(d);
 
     // A day is a workout day if the schedule says so at that point in the program
     const effectiveDayNumber = (i + 1) - skipped;
@@ -763,8 +791,7 @@ export function calculateSkippedDays(startDate: string, workoutLogs: WorkoutLog[
 
 export function getWorkoutTypeForDay(state: AppState, calendarDayNum: number): 'A' | 'B' | 'C' | 'Rest' {
   const sched = state.settings.weeklySchedule;
-  const startParts = state.startDate.split('-').map(Number);
-  const start = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+  const start = parseSafe(state.startDate);
   
   // 1. Determine if this calendar day is a Rest day
   let skippedBefore = 0;
@@ -833,7 +860,7 @@ export function getStreak(workoutLogs: WorkoutLog[]): number {
   for (let i = 0; i < 90; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = formatDate(d);
     if (sorted.find(l => l.date === ds)) { streak++; }
     else break;
   }
@@ -847,7 +874,7 @@ export function getConsecutiveWorkoutDays(workoutLogs: WorkoutLog[]): number {
   for (let i = 0; i < 10; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = formatDate(d);
     if (workoutLogs.find(l => l.date === ds)) count++;
     else break;
   }
@@ -992,7 +1019,7 @@ export function getMonthlyGrade(state: AppState): { grade: string; score: number
   for (let i = 0; i < daysInMonth; i++) {
     const d = new Date(monthStart);
     d.setDate(d.getDate() + i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = formatDate(d);
     const dayInWeek = i % 7;
     if (schedule[dayInWeek] !== 'Rest') {
       expectedWorkouts++;
@@ -1001,7 +1028,7 @@ export function getMonthlyGrade(state: AppState): { grade: string; score: number
   }
   const workoutScore = expectedWorkouts ? (actualWorkouts / expectedWorkouts) * 40 : 0;
   const monthLogs = state.dietLogs.filter(d => {
-    const date = new Date(d.date);
+    const date = parseSafe(d.date);
     return date >= monthStart && date <= monthEnd;
   });
   let clean = 0, total = 0;
@@ -1025,16 +1052,16 @@ export function getMonthlyGrade(state: AppState): { grade: string; score: number
 }
 
 export function generateWeeklySummary(state: AppState, weekNum: number): WeeklySummary {
-  const weekStart = new Date(state.startDate);
+  const weekStart = parseSafe(state.startDate);
   weekStart.setDate(weekStart.getDate() + (weekNum - 1) * 7);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 7);
   const workouts = state.workoutLogs.filter(l => {
-    const d = new Date(l.date);
+    const d = parseSafe(l.date);
     return d >= weekStart && d < weekEnd;
   }).length;
   const dietLogs = state.dietLogs.filter(d => {
-    const date = new Date(d.date);
+    const date = parseSafe(d.date);
     return date >= weekStart && date < weekEnd;
   });
   const avgWater = dietLogs.length ? Math.round(dietLogs.reduce((s, d) => s + d.waterGlasses, 0) / dietLogs.length * 10) / 10 : 0;
@@ -1046,13 +1073,13 @@ export function generateWeeklySummary(state: AppState, weekNum: number): WeeklyS
   });
   const cleanPct = total2 ? Math.round((clean2 / total2) * 100) : 0;
   const weekEntries = state.progressEntries.filter(p => {
-    const d = new Date(p.date);
+    const d = parseSafe(p.date);
     return d >= weekStart && d < weekEnd;
   });
   const prevWeekStart = new Date(weekStart);
   prevWeekStart.setDate(prevWeekStart.getDate() - 7);
   const prevEntries = state.progressEntries.filter(p => {
-    const d = new Date(p.date);
+    const d = parseSafe(p.date);
     return d >= prevWeekStart && d < weekStart;
   });
   const lastWeight = weekEntries.filter(e => e.weight).pop()?.weight;
@@ -1066,7 +1093,7 @@ export function generateWeeklySummary(state: AppState, weekNum: number): WeeklyS
     waistChange: lastWaist && prevWaist ? Math.round((lastWaist - prevWaist) * 10) / 10 : null,
     weightChange: lastWeight && prevWeight ? Math.round((lastWeight - prevWeight) * 10) / 10 : null,
     cleanMealPct: cleanPct,
-    date: new Date().toISOString().split('T')[0],
+    date: getToday(),
   };
 }
 
@@ -1136,15 +1163,15 @@ export function calculateRecoveryScore(state: AppState, date: string): { score: 
   const lastWorkout = sortedLogs[0];
   let daysSinceWorkout = 1;
   if (lastWorkout) {
-    daysSinceWorkout = Math.max(1, Math.floor((new Date(date).getTime() - new Date(lastWorkout.date).getTime()) / 86400000));
+    daysSinceWorkout = Math.max(1, Math.floor((parseSafe(date).getTime() - parseSafe(lastWorkout.date).getTime()) / 86400000));
   }
   const restScore = Math.min(10, daysSinceWorkout * 2.5) * 0.3;
 
   // Rest day activity bonus
   const restDayLog = state.restDayLogs.find(r => {
-    const prevDate = new Date(date);
+    const prevDate = parseSafe(date);
     prevDate.setDate(prevDate.getDate() - 1);
-    return r.date === prevDate.toISOString().split('T')[0];
+    return r.date === formatDate(prevDate);
   });
   const restBonus = restDayLog ? (restDayLog.activity === 'Stretching' || restDayLog.activity === 'Yoga' ? 1 : restDayLog.activity === 'Light Walk' ? 0.5 : 0) : 0;
   
@@ -1189,7 +1216,7 @@ export function getSleepStreak(sleepLogs: SleepLog[]): number {
   for (let i = 0; i < 90; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = formatDate(d);
     const log = sorted.find(l => l.date === ds);
     if (log && log.hoursSlept >= 7) streak++;
     else break;
@@ -1203,7 +1230,7 @@ export function getMindfulnessStreak(state: AppState): number {
   for (let i = 0; i < 90; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = formatDate(d);
     const hasBreathing = state.breathingSessions.some(b => b.date === ds);
     const hasMinutes = (state.mindfulnessMinutes[ds] || 0) > 0;
     if (hasBreathing || hasMinutes) streak++;

@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { loadState, saveState, getToday, genId } from "@/lib/store";
+import { loadState, patchState, useSyncState, getToday, genId, formatDate } from "@/lib/store";
 import { toast } from "sonner";
 
 export default function HabitsPage() {
-  const [state, setState] = useState(() => loadState());
+  const [state, setState] = useSyncState();
   const today = getToday();
   const ft = state.settings.featureToggles;
   const [showAddHabit, setShowAddHabit] = useState(false);
@@ -28,16 +28,15 @@ export default function HabitsPage() {
   }, [completions, today]);
 
   const toggleHabit = useCallback((habitId: string) => {
-    const s = loadState();
-    const existing = s.habitCompletions.find(c => c.date === today && c.habitId === habitId);
-    if (existing) {
-      s.habitCompletions = s.habitCompletions.filter(c => !(c.date === today && c.habitId === habitId));
-    } else {
-      s.habitCompletions.push({ date: today, habitId });
-      if (ft.xpSystem) s.xp = (s.xp || 0) + 5;
-    }
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      const existing = s.habitCompletions.find(c => c.date === today && c.habitId === habitId);
+      if (existing) {
+        s.habitCompletions = s.habitCompletions.filter(c => !(c.date === today && c.habitId === habitId));
+      } else {
+        s.habitCompletions.push({ date: today, habitId });
+        if (ft.xpSystem) s.xp = (s.xp || 0) + 5;
+      }
+    });
   }, [today, ft.xpSystem]);
 
   const habitStreak = useCallback((habitId: string) => {
@@ -46,7 +45,7 @@ export default function HabitsPage() {
     for (let i = 0; i < 90; i++) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
-      const ds = d.toISOString().split('T')[0];
+      const ds = formatDate(d);
       if (completions.some(c => c.date === ds && c.habitId === habitId)) streak++;
       else break;
     }
@@ -55,30 +54,32 @@ export default function HabitsPage() {
 
   const addHabitStack = () => {
     if (!newTrigger || !newAction) return;
-    const s = loadState();
-    s.settings.habitStacks.push({ id: genId(), trigger: newTrigger, action: newAction, enabled: true });
-    saveState(s); setState(s); setNewTrigger(""); setNewAction(""); setShowAddHabit(false);
+    patchState(s => {
+      s.settings.habitStacks.push({ id: genId(), trigger: newTrigger, action: newAction, enabled: true });
+    });
+    setNewTrigger(""); setNewAction(""); setShowAddHabit(false);
     toast.success("Stack added.");
   };
 
   const addIfThenRule = () => {
     if (!newCondition || !newRuleAction) return;
-    const s = loadState();
-    s.settings.ifThenRules.push({ id: genId(), condition: newCondition, action: newRuleAction, enabled: true });
-    saveState(s); setState(s); setNewCondition(""); setNewRuleAction(""); setShowAddRule(false);
+    patchState(s => {
+      s.settings.ifThenRules.push({ id: genId(), condition: newCondition, action: newRuleAction, enabled: true });
+    });
+    setNewCondition(""); setNewRuleAction(""); setShowAddRule(false);
     toast.success("Rule added.");
   };
 
   const removeHabit = (id: string) => {
-    const s = loadState();
-    s.settings.habitStacks = s.settings.habitStacks.filter(h => h.id !== id);
-    saveState(s); setState(s);
+    patchState(s => {
+      s.settings.habitStacks = s.settings.habitStacks.filter(h => h.id !== id);
+    });
   };
 
   const removeRule = (id: string) => {
-    const s = loadState();
-    s.settings.ifThenRules = s.settings.ifThenRules.filter(r => r.id !== id);
-    saveState(s); setState(s);
+    patchState(s => {
+      s.settings.ifThenRules = s.settings.ifThenRules.filter(r => r.id !== id);
+    });
   };
 
   const handleVisionPhoto = () => {
@@ -90,9 +91,9 @@ export default function HabitsPage() {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
-        const s = loadState();
-        s.settings.goalVisionPhoto = reader.result as string;
-        saveState(s); setState(s);
+        patchState(s => {
+          s.settings.goalVisionPhoto = reader.result as string;
+        });
       };
       reader.readAsDataURL(file);
     };

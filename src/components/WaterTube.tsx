@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, Droplets } from "lucide-react";
-import { loadState, saveState, getDietLog, getToday } from "@/lib/store";
+import { loadState, patchState, getDietLog, getToday } from "@/lib/store";
 
 const GOAL = 12;
 const TUBE_W = 64; 
@@ -41,12 +41,15 @@ export default function WaterTube() {
     if (clamped > glasses) {
       setPrevGlasses(glasses);
     }
-    const state = loadState();
-    const today = getToday();
-    const log = getDietLog(state.dietLogs, today, state.settings.meals);
-    const updated = { ...log, waterGlasses: clamped };
-    const others = state.dietLogs.filter((d) => d.date !== today);
-    saveState({ ...state, dietLogs: [...others, updated] });
+    
+    patchState(s => {
+      const today = getToday();
+      const log = getDietLog(s.dietLogs, today, s.settings.meals);
+      const updated = { ...log, waterGlasses: clamped };
+      const others = s.dietLogs.filter((d) => d.date !== today);
+      s.dietLogs = [...others, updated];
+    });
+
     setGlasses(clamped);
     
     if (window.navigator.vibrate) {

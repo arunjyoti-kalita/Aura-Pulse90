@@ -12,7 +12,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  loadState, saveState, defaultSettings, genId, exportDataAsCSV,
+  loadState, saveState, patchState, useSyncState, defaultSettings, genId, exportDataAsCSV, getToday,
   type AppSettings, type CustomWorkout, type Exercise, type MealConfig, type MilestoneConfig, type FeatureToggles,
 } from "@/lib/store";
 import { toast } from "sonner";
@@ -85,7 +85,7 @@ const itemVariants = {
 };
 
 export default function SettingsPage() {
-  const [state, setState] = useState(() => loadState());
+  const [state, setState] = useSyncState();
   const settings = state.settings;
   const navigate = useNavigate();
   const [backupMeta, setBackupMeta] = useState(() => getBackupMeta());
@@ -108,18 +108,14 @@ export default function SettingsPage() {
   }, [refreshBackupState]);
 
   const update = useCallback((patch: Partial<AppSettings>) => {
-    setState(prev => {
-      const next = { ...prev, settings: { ...prev.settings, ...patch } };
-      saveState(next);
-      return next;
+    patchState(s => {
+      s.settings = { ...s.settings, ...patch };
     });
   }, []);
 
   const updateStartDate = useCallback((date: string) => {
-    setState(prev => {
-      const next = { ...prev, startDate: date };
-      saveState(next);
-      return next;
+    patchState(s => {
+      s.startDate = date;
     });
   }, []);
 
@@ -529,17 +525,17 @@ export default function SettingsPage() {
           </FieldRow>
           <div className="space-y-2 pt-2 border-t border-border/50">
             <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => {
-              const s = loadState();
-              const today = new Date().toISOString().split('T')[0];
-              const log = s.dietLogs.find(d => d.date === today);
-              if (log) { log.foodEntries = []; saveState(s); setState(s); toast.success("Today's food log cleared"); }
-              else { toast("No food logged today"); }
+              const today = getToday();
+              patchState(s => {
+                const log = s.dietLogs.find(d => d.date === today);
+                if (log) log.foodEntries = [];
+              });
+              toast.success("Today's food log cleared");
             }}>Clear Today's Food Log</Button>
             <Button variant="outline" size="sm" className="w-full text-xs text-destructive" onClick={() => {
-              const s = loadState();
-              s.dietLogs.forEach(d => { d.foodEntries = []; });
-              saveState(s);
-              setState(s);
+              patchState(s => {
+                s.dietLogs.forEach(d => { d.foodEntries = []; });
+              });
               toast.success("All food history cleared");
             }}>Clear All Food History</Button>
           </div>
@@ -956,7 +952,10 @@ export default function SettingsPage() {
         >
           <Button
             onClick={() => {
-              saveState(state);
+              patchState(s => {
+                s.settings = state.settings;
+                s.startDate = state.startDate;
+              });
               toast.success("All changes saved!");
             }}
             className="w-full h-12 text-base font-bold"

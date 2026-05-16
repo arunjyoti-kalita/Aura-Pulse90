@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { loadState, getDayNumber, getDietLog, getWorkoutTypeByOrder, calculateSkippedDays, getToday } from "@/lib/store";
+import { loadState, useSyncState, getDayNumber, getDietLog, getWorkoutTypeByOrder, calculateSkippedDays, getToday } from "@/lib/store";
 import { X, Coffee, Frown, Circle, Star, Shield, Flame, Zap, SkipForward } from "lucide-react";
 
 type DayStatus = 'done' | 'partial' | 'skipped' | 'rest' | 'missed' | 'upcoming';
@@ -21,7 +21,7 @@ const TYPE_CONFIG: Record<string, { bg: string; text: string; label: string }> =
 // Removed hardcoded isRestDay function to use store logic instead
 
 export default function TimelinePage() {
-  const state = useMemo(() => loadState(), []);
+  const [state] = useSyncState();
   const currentDay = useMemo(() => {
     const skipped = calculateSkippedDays(state.startDate, state.workoutLogs, state.settings.weeklySchedule);
     return getDayNumber(state.startDate, skipped);

@@ -7,7 +7,7 @@ import WorkoutMusic from "@/components/WorkoutMusic";
 import QuickSessionSelector from "@/components/QuickSessionSelector";
 import AIFormCheck from "@/components/AIFormCheck";
 import InlineRestTimer from "@/components/InlineRestTimer";
-import { loadState, saveState, getTodayWorkoutType, getToday, calculateWorkoutIntensity, checkAndAwardBadges, getProgressionSuggestions, getWorkoutDifficulty, deskExercises } from "@/lib/store";
+import { loadState, saveState, useSyncState, getTodayWorkoutType, getToday, calculateWorkoutIntensity, checkAndAwardBadges, getProgressionSuggestions, getWorkoutDifficulty, deskExercises } from "@/lib/store";
 import type { CustomWorkout, Exercise, PersonalRecord, QuickSession } from "@/lib/store";
 import { toast } from "sonner";
 import { fireConfetti } from "@/lib/confetti";
@@ -25,7 +25,7 @@ function getExerciseCategory(name: string): 'strength' | 'core' | 'cardio' {
 }
 
 export default function WorkoutPage() {
-  const [state, setState] = useState(() => loadState());
+  const [state, setState] = useSyncState();
   const todayType = getTodayWorkoutType(state);
   const today = getToday();
   const alreadyDone = state.workoutLogs.some(l => l.date === today);
@@ -156,20 +156,20 @@ export default function WorkoutPage() {
     setCompletedSets(updated);
 
     // Save progress mid-workout
-    const s = loadState();
-    const existingLogIdx = s.workoutLogs.findIndex(l => l.date === today);
-    if (existingLogIdx >= 0) {
-      s.workoutLogs[existingLogIdx].completedSets = updated;
-    } else {
-      s.workoutLogs.push({
-        date: today,
-        type: todayType as 'A' | 'B' | 'C',
-        completedSets: updated,
-        completedAt: '',
-        partial: true
-      });
-    }
-    saveState(s);
+    patchState(s => {
+      const existingLogIdx = s.workoutLogs.findIndex(l => l.date === today);
+      if (existingLogIdx >= 0) {
+        s.workoutLogs[existingLogIdx].completedSets = updated;
+      } else {
+        s.workoutLogs.push({
+          date: today,
+          type: todayType as 'A' | 'B' | 'C',
+          completedSets: updated,
+          completedAt: '',
+          partial: true
+        });
+      }
+    });
   }, [activeExercises, today, todayType, quickSessionActive, state.settings, getRestTime, completedSets]);
 
   const handleInlineTimerComplete = useCallback((exName: string, isLastSet: boolean) => {
@@ -209,28 +209,31 @@ export default function WorkoutPage() {
     if (strictMode && !allDone && !quickSessionActive) return;
 
     if (quickSessionActive) {
-      const s = loadState();
-      const xpMap = { '5min': 25, '10min': 25, '15min': 25, 'desk': 12 };
-      const xp = xpMap[quickSessionActive];
-      s.quickSessions.push({ date: today, type: quickSessionActive, xpEarned: xp, completedAt: new Date().toISOString() });
-      if (ft.xpSystem) s.xp = (s.xp || 0) + xp;
       const endTime = new Date().toISOString();
       const durationSeconds = activeWorkoutStartTimestamp.current ? Math.round((Date.now() - activeWorkoutStartTimestamp.current) / 1000) : 0;
       const timeStr = durationSeconds > 60 ? `${Math.floor(durationSeconds/60)}m ${durationSeconds%60}s` : `${durationSeconds}s`;
-      s.workoutLogs = s.workoutLogs.filter(l => l.date !== today);
-      s.workoutLogs.push({
-        date: today, type: todayType as 'A' | 'B' | 'C', completedSets,
-        completedAt: endTime, startedAt: workoutStartTime.current, durationSeconds,
-        partial: true, completionPct: quickSessionActive === 'desk' ? 25 : 50,
+      
+      const xpMap = { '5min': 25, '10min': 25, '15min': 25, 'desk': 12 };
+      const xp = xpMap[quickSessionActive];
+
+      patchState(s => {
+        s.quickSessions.push({ date: today, type: quickSessionActive, xpEarned: xp, completedAt: endTime });
+        if (ft.xpSystem) s.xp = (s.xp || 0) + xp;
+        
+        s.workoutLogs = s.workoutLogs.filter(l => l.date !== today);
+        s.workoutLogs.push({
+          date: today, type: todayType as 'A' | 'B' | 'C', completedSets,
+          completedAt: endTime, startedAt: workoutStartTime.current, durationSeconds,
+          partial: true, completionPct: quickSessionActive === 'desk' ? 25 : 50,
+        });
       });
-      saveState(s);
+      
       toast.success(`Quick session done in ${timeStr}! +${xp} XP 🏃`);
       if (ft.confetti) fireConfetti();
       setQuickSessionActive(null);
       return;
     }
 
-    const s = loadState();
     const isPartial = !allDone;
     const pct = completionStats.pct;
     const xpEarned = ft.xpSystem ? Math.round((pct / 100) * 50 / 5) * 5 : 0;
@@ -241,23 +244,26 @@ export default function WorkoutPage() {
       { date: today, type: todayType as 'A' | 'B' | 'C', completedSets, completedAt: endTime },
       activeExercises
     );
-    s.workoutLogs = s.workoutLogs.filter(l => l.date !== today);
-    s.workoutLogs.push({
-      date: today, type: todayType as 'A' | 'B' | 'C', completedSets,
-      completedAt: endTime, startedAt: workoutStartTime.current, durationSeconds,
-      intensityScore: intensity,
-      partial: isPartial, completionPct: pct,
-    });
-    if (ft.xpSystem) s.xp = (s.xp || 0) + xpEarned;
-    if (ft.badges) {
-      const { state: updated, newBadges } = checkAndAwardBadges(s);
-      Object.assign(s, { badges: updated.badges });
-      if (newBadges.length > 0 && ft.confetti) {
-        fireConfetti();
-        newBadges.forEach(name => toast.success(`🏅 Badge earned: ${name}!`));
+
+    patchState(s => {
+      s.workoutLogs = s.workoutLogs.filter(l => l.date !== today);
+      s.workoutLogs.push({
+        date: today, type: todayType as 'A' | 'B' | 'C', completedSets,
+        completedAt: endTime, startedAt: workoutStartTime.current, durationSeconds,
+        intensityScore: intensity,
+        partial: isPartial, completionPct: pct,
+      });
+      if (ft.xpSystem) s.xp = (s.xp || 0) + xpEarned;
+      if (ft.badges) {
+        const { state: updated, newBadges } = checkAndAwardBadges(s);
+        Object.assign(s, { badges: updated.badges });
+        if (newBadges.length > 0 && ft.confetti) {
+          fireConfetti();
+          newBadges.forEach(name => toast.success(`🏅 Badge earned: ${name}!`));
+        }
       }
-    }
-    saveState(s);
+    });
+
     if (isPartial) toast.success(`Workout logged in ${timeStr} (${pct}%) — ${xpEarned} XP earned 💪`);
     else toast.success(`Workout completed in ${timeStr}! 💪`);
     if (ft.confetti && allDone) fireConfetti();
@@ -268,25 +274,24 @@ export default function WorkoutPage() {
   const skipPlannedWorkout = () => {
     handleInteraction();
     setHasSkippedToday(true);
-    const s = loadState();
-    s.workoutLogs = s.workoutLogs.filter(l => l.date !== today);
-    s.workoutLogs.push({
-      date: today,
-      type: todayType as 'A' | 'B' | 'C',
-      completedSets: {},
-      completedAt: new Date().toISOString(),
-      partial: false,
-      isSkipped: true
+    patchState(s => {
+      s.workoutLogs = s.workoutLogs.filter(l => l.date !== today);
+      s.workoutLogs.push({
+        date: today,
+        type: todayType as 'A' | 'B' | 'C',
+        completedSets: {},
+        completedAt: new Date().toISOString(),
+        partial: false,
+        isSkipped: true
+      });
     });
-    saveState(s);
     toast.info("Planned workout skipped. Try a micro-workout instead!");
   };
 
   const rateDifficulty = (rating: 'Too Easy' | 'Just Right' | 'Too Hard') => {
-    const s = loadState();
-    s.difficultyRatings.push({ date: today, workoutType: todayType as 'A' | 'B' | 'C', rating });
-    saveState(s);
-    setState(s);
+    patchState(s => {
+      s.difficultyRatings.push({ date: today, workoutType: todayType as 'A' | 'B' | 'C', rating });
+    });
     setShowDifficultyRating(false);
     toast.success('Rating saved!');
   };
