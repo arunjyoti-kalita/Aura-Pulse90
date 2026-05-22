@@ -71,11 +71,11 @@ export default function OutdoorPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-black italic text-white tracking-tight leading-none uppercase">Telemetry</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Spatial & Kinetic Tracking</p>
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">Spatial & Kinetic Tracking</p>
         </div>
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isTracking ? 'bg-primary animate-pulse' : 'bg-white/10'}`} />
-          <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">{isTracking ? 'Active' : 'Standby'}</p>
+          <p className="text-[11px] font-black text-white/40 uppercase tracking-widest">{isTracking ? 'Active' : 'Standby'}</p>
         </div>
       </div>
 
@@ -85,16 +85,16 @@ export default function OutdoorPage() {
         <div className="glass-card-premium p-3 border-white/5 flex flex-col justify-between h-32">
           <div className="flex items-center gap-1.5 mb-2">
             <Navigation className="w-3 h-3 text-primary" />
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">GPS Distance</p>
+            <p className="text-[11px] font-black text-white/40 uppercase tracking-widest">GPS Distance</p>
           </div>
           <div className="space-y-0.5">
             <p className="text-3xl font-black text-white leading-none tabular-nums">{distance.toFixed(2)}</p>
-            <p className="text-[10px] font-black text-primary">KM</p>
+            <p className="text-[12px] font-black text-primary">KM</p>
           </div>
           {!isTracking ? (
-            <Button onClick={startTracking} className="h-7 w-full text-[8px] font-black uppercase tracking-widest bg-primary/10 border-primary/20 hover:bg-primary/20">START</Button>
+            <Button onClick={startTracking} className="h-7 w-full text-[11px] font-black uppercase tracking-widest bg-primary/10 border-primary/20 hover:bg-primary/20">START</Button>
           ) : (
-            <Button onClick={stopTracking} variant="destructive" className="h-7 w-full text-[8px] font-black uppercase tracking-widest">STOP</Button>
+            <Button onClick={stopTracking} variant="destructive" className="h-7 w-full text-[11px] font-black uppercase tracking-widest">STOP</Button>
           )}
         </div>
 
@@ -102,11 +102,11 @@ export default function OutdoorPage() {
         <div className="glass-card-premium p-3 border-white/5 flex flex-col justify-between h-32">
           <div className="flex items-center gap-1.5 mb-2">
             <Footprints className="w-3 h-3 text-cyan-400" />
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Pedometry</p>
+            <p className="text-[11px] font-black text-white/40 uppercase tracking-widest">Pedometry</p>
           </div>
           <div className="space-y-0.5">
             <p className="text-3xl font-black text-white leading-none tabular-nums">{(state.steps || 0).toLocaleString()}</p>
-            <p className="text-[10px] font-black text-cyan-400">STEPS</p>
+            <p className="text-[12px] font-black text-cyan-400">STEPS</p>
           </div>
           <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
             <div className="h-full bg-cyan-400" style={{ width: `${Math.min(100, (state.steps || 0) / state.settings.dailyStepGoal * 100)}%` }} />
@@ -122,9 +122,9 @@ export default function OutdoorPage() {
           { label: 'XP', value: Math.floor(distance * 10), unit: 'Earned', color: 'primary' },
         ].map((s, i) => (
           <div key={i} className="glass-card-premium p-2 border-white/5 text-center">
-            <p className="text-[7px] font-black text-white/20 uppercase tracking-widest mb-1">{s.label}</p>
-            <p className={`text-[12px] font-black text-${s.color}`}>{s.value}</p>
-            <p className="text-[6px] font-bold text-white/10 uppercase">{s.unit}</p>
+            <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-1">{s.label}</p>
+            <p className={`text-[14px] font-black text-${s.color}`}>{s.value}</p>
+            <p className="text-[11px] font-bold text-white/20 uppercase">{s.unit}</p>
           </div>
         ))}
       </div>
@@ -133,15 +133,15 @@ export default function OutdoorPage() {
       <div>
         <div className="flex items-center gap-2 mb-3">
           <History className="w-3 h-3 text-white/30" />
-          <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Log History</p>
+          <p className="text-[11px] font-black text-white/45 uppercase tracking-[0.2em]">Log History</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
           {(state.outdoorLogs || []).slice().reverse().slice(0, 4).map(log => (
             <div key={log.id} className="glass-card-premium p-2 border-white/5 bg-white/5 flex flex-col justify-between h-16">
-              <p className="text-[7px] font-black text-white/20 uppercase">{new Date(log.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
+              <p className="text-[11px] font-black text-white/30 uppercase">{new Date(log.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
               <div className="flex items-baseline gap-1">
                 <p className="text-sm font-black text-white">{log.distance.toFixed(1)}</p>
-                <p className="text-[8px] font-bold text-primary">KM</p>
+                <p className="text-[11px] font-bold text-primary">KM</p>
               </div>
             </div>
           ))}
@@ -150,7 +150,7 @@ export default function OutdoorPage() {
 
       <div className="mt-6 flex items-start gap-2 glass-card-premium p-3 border-white/5 bg-white/5">
         <Info className="w-3 h-3 text-white/20 mt-0.5" />
-        <p className="text-[8px] font-medium text-white/40 leading-relaxed italic">
+        <p className="text-[11px] font-medium text-white/40 leading-relaxed italic">
           GPS precision varies by hardware. Maintain clear line-of-sight to the sky for optimal telemetry accuracy.
         </p>
       </div>

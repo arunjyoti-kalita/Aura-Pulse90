@@ -19,7 +19,7 @@ export default function GoldenRules() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-12"
       >
-        <div className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-4">
+        <div className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[13px] font-bold uppercase tracking-[0.2em] text-primary mb-4">
           The Foundation
         </div>
         <h1 className="text-4xl font-display font-bold text-white tracking-tight mb-2">Golden Rules</h1>

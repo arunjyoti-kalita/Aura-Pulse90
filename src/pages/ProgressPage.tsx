@@ -137,9 +137,9 @@ export default function ProgressPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-black italic text-white tracking-tight leading-none uppercase">Evolution Log</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Biometric History</p>
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">Biometric History</p>
         </div>
-        <div className="px-3 py-1 rounded-lg bg-primary/10 border border-primary/20 text-[9px] font-black text-primary">
+        <div className="px-3 py-1 rounded-lg bg-primary/10 border border-primary/20 text-[11px] font-black text-primary">
           WEEK {week}
         </div>
       </div>
@@ -151,8 +151,8 @@ export default function ProgressPage() {
         className="glass-cockpit p-4 mb-4 light-bleed"
       >
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Performance Matrix</p>
-          <div className="flex gap-2 text-[8px] font-black uppercase text-white/30">
+          <p className="text-[12px] font-black text-primary uppercase tracking-[0.2em]">Performance Matrix</p>
+          <div className="flex gap-2 text-[11px] font-black uppercase text-white/30">
             <span className="flex items-center gap-1"><div className="w-2 h-0.5 bg-primary" /> Rec</span>
             <span className="flex items-center gap-1"><div className="w-2 h-0.5 bg-blue-400" /> Sleep</span>
           </div>
@@ -164,7 +164,7 @@ export default function ProgressPage() {
               <XAxis dataKey="date" hide />
               <YAxis hide domain={[0, 100]} />
               <Tooltip 
-                contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px' }}
+                contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '11px' }}
                 itemStyle={{ padding: '0px' }}
               />
               <Bar dataKey="intensity" fill="rgba(34,197,94,0.1)" radius={[2, 2, 0, 0]} />
@@ -178,15 +178,15 @@ export default function ProgressPage() {
       {/* Main Stats - Side by Side Grid */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div className="glass-card-premium p-2 text-center border-white/5 light-bleed">
-          <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-0.5">BF%</p>
+          <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-0.5">BF%</p>
           <p className="text-sm font-black text-primary leading-tight">{bodyFat ?? '—'}%</p>
         </div>
         <div className="glass-card-premium p-2 text-center border-white/5 light-bleed">
-          <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-0.5">Strength</p>
+          <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-0.5">Strength</p>
           <p className="text-sm font-black text-white leading-tight">{strengthScore?.score ?? '—'}</p>
         </div>
         <div className="glass-card-premium p-2 text-center border-white/5 light-bleed">
-          <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-0.5">Grade</p>
+          <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-0.5">Grade</p>
           <p className="text-sm font-black text-blue-400 leading-tight">{monthlyGrade?.grade ?? '—'}</p>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function ProgressPage() {
       <div className="glass-cockpit p-4 mb-4 light-bleed">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-1 h-3 bg-primary rounded-full shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-          <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.2em]">Quick Log</p>
+          <p className="text-[11px] font-black text-white/50 uppercase tracking-[0.2em]">Quick Log</p>
         </div>
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="space-y-1">
@@ -209,7 +209,7 @@ export default function ProgressPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button onClick={logProgress} className="flex-1 h-9 font-black text-[9px] uppercase tracking-widest rounded-lg btn-press">Log Entry</Button>
+          <Button onClick={logProgress} className="flex-1 h-9 font-black text-[11px] uppercase tracking-widest rounded-lg btn-press">Log Entry</Button>
           <Button variant="outline" onClick={() => handlePhotoUpload('front')} className="w-9 h-9 p-0 rounded-lg bg-white/5 border-white/10 btn-press">
             <Camera className="w-3.5 h-3.5 text-white/40" />
           </Button>
@@ -226,7 +226,7 @@ export default function ProgressPage() {
       {/* History Grid - Side by Side (2 columns) */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1 mb-2">
-          <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Log History</p>
+          <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em]">Log History</p>
           <History className="w-3 h-3 text-white/10" />
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -243,11 +243,11 @@ export default function ProgressPage() {
                   {status === 'chill' && <span className="text-[12px]">🧘</span>}
                   {status === 'missed' && <span className="text-[12px]">⭕</span>}
                 </div>
-                <p className="text-[8px] font-black text-white/40 group-hover:text-primary transition-colors">{e.date}</p>
+                <p className="text-[11px] font-black text-white/40 group-hover:text-primary transition-colors">{e.date}</p>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {e.weight && <span className="text-[7px] font-bold text-white bg-white/5 px-1.5 py-0.5 rounded uppercase tracking-tighter">{e.weight}kg</span>}
-                  {e.waist && <span className="text-[7px] font-bold text-info bg-info/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">{e.waist}cm</span>}
-                  {e.pushups && <span className="text-[7px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">{e.pushups}R</span>}
+                  {e.weight && <span className="text-[11px] font-bold text-white bg-white/5 px-1.5 py-0.5 rounded uppercase tracking-tighter">{e.weight}kg</span>}
+                  {e.waist && <span className="text-[11px] font-bold text-info bg-info/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">{e.waist}cm</span>}
+                  {e.pushups && <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">{e.pushups}R</span>}
                 </div>
               </div>
             );

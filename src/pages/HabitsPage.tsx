@@ -105,14 +105,14 @@ export default function HabitsPage() {
       {/* Technical Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-black italic text-white tracking-tight leading-none">SYSTEMS</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Architecture of Identity</p>
+          <h1 className="text-2xl font-black italic text-white tracking-tight leading-none">SYSTEMS</h1>
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">Architecture of Identity</p>
         </div>
         <div className="flex gap-2">
-           <Button size="sm" variant="outline" onClick={() => setShowAddHabit(true)} className="h-7 text-[8px] font-black uppercase tracking-widest px-2 border-white/10 bg-white/5">
+           <Button size="sm" variant="outline" onClick={() => setShowAddHabit(true)} className="h-8 text-[11px] font-bold uppercase tracking-widest px-3 border-white/10 bg-white/5">
              + STACK
            </Button>
-           <Button size="sm" variant="outline" onClick={() => setShowAddRule(true)} className="h-7 text-[8px] font-black uppercase tracking-widest px-2 border-white/10 bg-white/5">
+           <Button size="sm" variant="outline" onClick={() => setShowAddRule(true)} className="h-8 text-[11px] font-bold uppercase tracking-widest px-3 border-white/10 bg-white/5">
              + RULE
            </Button>
         </div>
@@ -122,29 +122,29 @@ export default function HabitsPage() {
       {ft.habitStacking && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <Layers className="w-3 h-3 text-primary" />
-            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Habit Stacks</p>
+            <Layers className="w-4 h-4 text-primary" />
+            <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em]">Habit Stacks</p>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {habitStacks.filter(h => h.enabled).map(h => {
               const done = isHabitDone(h.id);
               const streak = habitStreak(h.id);
               return (
-                <div key={h.id} className={`glass-card-premium p-2 flex flex-col justify-between transition-all duration-300 border-white/5 ${done ? 'bg-primary/5 border-primary/20' : ''}`}>
+                <div key={h.id} className={`glass-card-premium p-3 flex flex-col justify-between transition-all duration-300 border-white/5 min-h-[110px] ${done ? 'bg-primary/5 border-primary/20' : ''}`}>
                   <div className="flex justify-between items-start mb-2">
                     <button onClick={() => toggleHabit(h.id)}>
-                      {done ? <CheckCircle2 className="w-4 h-4 text-primary" /> : <Circle className="w-4 h-4 text-white/10" />}
+                      {done ? <CheckCircle2 className="w-5 h-5 text-primary" /> : <Circle className="w-5 h-5 text-white/10" />}
                     </button>
-                    <button onClick={() => removeHabit(h.id)} className="text-white/10 hover:text-destructive transition-colors">
-                      <Trash2 className="w-3 h-3" />
+                    <button onClick={() => removeHabit(h.id)} className="text-white/20 hover:text-destructive transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[7px] text-white/30 uppercase font-black truncate">{h.trigger}</p>
-                    <p className="text-[11px] font-black text-white leading-none line-clamp-2">{h.action}</p>
+                    <p className="text-[11px] text-white/40 uppercase font-black truncate">{h.trigger}</p>
+                    <p className="text-[13px] font-bold text-white leading-tight line-clamp-2">{h.action}</p>
                   </div>
                   {streak > 0 && (
-                    <p className="text-[8px] font-black text-primary mt-2">{streak}🔥</p>
+                    <p className="text-[11px] font-bold text-primary mt-2">{streak}🔥</p>
                   )}
                 </div>
               );
@@ -157,19 +157,19 @@ export default function HabitsPage() {
       {ft.ifThenPlanner && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-3 h-3 text-amber-400" />
-            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Rules</p>
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em]">Rules</p>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {ifThenRules.filter(r => r.enabled).map(r => (
-              <div key={r.id} className="glass-card-premium p-3 border-white/5 flex flex-col justify-between h-24">
-                <div className="flex justify-between items-start">
-                   <p className="text-[7px] text-amber-400/60 uppercase font-black">IF {r.condition}</p>
-                   <button onClick={() => removeRule(r.id)} className="text-white/10 hover:text-destructive">
-                     <Trash2 className="w-3 h-3" />
+              <div key={r.id} className="glass-card-premium p-3 border-white/5 flex flex-col justify-between min-h-[96px]">
+                <div className="flex justify-between items-start mb-2">
+                   <p className="text-[11px] text-amber-400/80 uppercase font-black">IF {r.condition}</p>
+                   <button onClick={() => removeRule(r.id)} className="text-white/20 hover:text-destructive">
+                     <Trash2 className="w-3.5 h-3.5" />
                    </button>
                 </div>
-                <p className="text-[10px] font-black text-white/90 leading-tight">THEN {r.action}</p>
+                <p className="text-[12px] font-bold text-white/90 leading-tight">THEN {r.action}</p>
               </div>
             ))}
           </div>
@@ -179,7 +179,7 @@ export default function HabitsPage() {
       {/* Goal Vision - Compact */}
       {ft.goalVisualization && (
         <div className="mb-6">
-          <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">Vision</p>
+          <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Vision</p>
           <div className="glass-card-premium p-3 border-white/5 space-y-3">
             <Textarea
               value={state.settings.goalVisionText}
@@ -187,18 +187,19 @@ export default function HabitsPage() {
                 const s = loadState(); s.settings.goalVisionText = e.target.value; saveState(s); setState(s);
               }}
               placeholder="The vision..."
-              className="bg-white/5 border-none h-16 text-[10px] p-2 placeholder:text-white/10 resize-none font-bold"
+              className="bg-white/5 border-none h-20 text-[12px] p-3 placeholder:text-white/20 resize-none font-semibold leading-relaxed"
             />
-            <div className="relative rounded-lg overflow-hidden border border-white/5">
+            <div className="relative rounded-lg overflow-hidden border border-white/5 bg-black/30 flex items-center justify-center min-h-[300px] w-full">
               {state.settings.goalVisionPhoto ? (
-                <img src={state.settings.goalVisionPhoto} className="w-full h-24 object-cover opacity-60" />
+                <img src={state.settings.goalVisionPhoto} className="w-full h-auto max-h-[380px] object-contain rounded-lg" />
               ) : (
-                <Button variant="outline" onClick={handleVisionPhoto} className="w-full h-12 border-dashed border-white/10 bg-white/5 text-[9px] font-black uppercase tracking-widest text-white/20">
-                  + VISION IMAGE
+                <Button variant="outline" onClick={handleVisionPhoto} className="w-full min-h-[300px] border-dashed border-white/10 bg-white/5 text-[11px] font-bold uppercase tracking-widest text-white/30 hover:bg-white/10 transition-all flex flex-col gap-2 justify-center items-center">
+                  <Image className="w-8 h-8 text-white/20" />
+                  <span>+ UPLOAD VISION IMAGE</span>
                 </Button>
               )}
               {state.settings.goalVisionPhoto && (
-                <button onClick={handleVisionPhoto} className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-[8px] font-black text-white uppercase transition-opacity">Change</button>
+                <button onClick={handleVisionPhoto} className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-[11px] font-bold text-white uppercase tracking-wider transition-opacity">Change Image</button>
               )}
             </div>
           </div>
@@ -207,12 +208,12 @@ export default function HabitsPage() {
 
       {/* Affirmations - Grid */}
       {ft.affirmations && (
-        <div>
-          <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">Identity Affirmations</p>
+        <div className="mb-6">
+          <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Identity Affirmations</p>
           <div className="grid grid-cols-2 gap-2">
             {state.settings.customAffirmations.map((a, i) => (
-              <div key={i} className="glass-card-premium p-2 border-white/5 bg-gradient-to-br from-primary/5 to-transparent">
-                <p className="text-[9px] font-black text-white/70 italic leading-tight">"{a}"</p>
+              <div key={i} className="glass-card-premium p-3 border-white/5 bg-gradient-to-br from-primary/5 to-transparent">
+                <p className="text-[12px] font-bold text-white/80 italic leading-tight">"{a}"</p>
               </div>
             ))}
           </div>
@@ -221,23 +222,23 @@ export default function HabitsPage() {
 
       {/* Dialogs - Minimalized */}
       <Dialog open={showAddHabit} onOpenChange={setShowAddHabit}>
-        <DialogContent className="glass-card-premium bg-black/90 text-white max-w-[300px]">
-          <DialogHeader><DialogTitle className="text-[11px] font-black uppercase tracking-widest text-center">New Stack</DialogTitle></DialogHeader>
+        <DialogContent className="glass-card-premium bg-black/90 text-white max-w-[320px] border-white/10">
+          <DialogHeader><DialogTitle className="text-[13px] font-black uppercase tracking-widest text-center">New Stack</DialogTitle></DialogHeader>
           <div className="space-y-3 p-2">
-            <Input value={newTrigger} onChange={e => setNewTrigger(e.target.value)} placeholder="After I..." className="h-9 bg-white/5 text-[10px] font-bold" />
-            <Input value={newAction} onChange={e => setNewAction(e.target.value)} placeholder="I will..." className="h-9 bg-white/5 text-[10px] font-bold" />
-            <Button onClick={addHabitStack} className="w-full h-9 text-[10px] font-black uppercase tracking-widest">ADD STACK</Button>
+            <Input value={newTrigger} onChange={e => setNewTrigger(e.target.value)} placeholder="After I..." className="h-10 bg-white/5 text-[12px] font-bold" />
+            <Input value={newAction} onChange={e => setNewAction(e.target.value)} placeholder="I will..." className="h-10 bg-white/5 text-[12px] font-bold" />
+            <Button onClick={addHabitStack} className="w-full h-10 text-[12px] font-black uppercase tracking-widest">ADD STACK</Button>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={showAddRule} onOpenChange={setShowAddRule}>
-        <DialogContent className="glass-card-premium bg-black/90 text-white max-w-[300px]">
-          <DialogHeader><DialogTitle className="text-[11px] font-black uppercase tracking-widest text-center">New Rule</DialogTitle></DialogHeader>
+        <DialogContent className="glass-card-premium bg-black/90 text-white max-w-[320px] border-white/10">
+          <DialogHeader><DialogTitle className="text-[13px] font-black uppercase tracking-widest text-center">New Rule</DialogTitle></DialogHeader>
           <div className="space-y-3 p-2">
-            <Input value={newCondition} onChange={e => setNewCondition(e.target.value)} placeholder="If..." className="h-9 bg-white/5 text-[10px] font-bold" />
-            <Input value={newRuleAction} onChange={e => setNewRuleAction(e.target.value)} placeholder="Then..." className="h-9 bg-white/5 text-[10px] font-bold" />
-            <Button onClick={addIfThenRule} className="w-full h-9 text-[10px] font-black uppercase tracking-widest">ADD RULE</Button>
+            <Input value={newCondition} onChange={e => setNewCondition(e.target.value)} placeholder="If..." className="h-10 bg-white/5 text-[12px] font-bold" />
+            <Input value={newRuleAction} onChange={e => setNewRuleAction(e.target.value)} placeholder="Then..." className="h-10 bg-white/5 text-[12px] font-bold" />
+            <Button onClick={addIfThenRule} className="w-full h-10 text-[12px] font-black uppercase tracking-widest">ADD RULE</Button>
           </div>
         </DialogContent>
       </Dialog>

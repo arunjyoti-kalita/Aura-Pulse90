@@ -415,7 +415,7 @@ export default function WorkoutPage() {
               </p>
             </div>
             {difficultyLevel && !quickSessionActive && (
-              <div className={`text-[10px] font-black px-4 py-2 rounded-xl shadow-2xl backdrop-blur-xl border border-white/10 uppercase tracking-widest ${
+              <div className={`text-[12px] font-black px-4 py-2 rounded-xl shadow-2xl backdrop-blur-xl border border-white/10 uppercase tracking-widest ${
                 difficultyLevel === 'Beast' ? 'bg-destructive/20 text-destructive border-destructive/20' :
                 difficultyLevel === 'Advanced' ? 'bg-primary/20 text-primary border-primary/20' :
                 difficultyLevel === 'Beginner' ? 'bg-warning/20 text-warning border-warning/20' :
@@ -448,10 +448,10 @@ export default function WorkoutPage() {
                   <div className="w-full"><QuickSessionSelector onSelect={handleQuickSession} onClose={() => setShowQuickSession(false)} deskModeEnabled={ft.deskMode} /></div>
                 ) : (
                   <>
-                    <button onClick={() => setShowQuickSession(true)} className="flex-1 glass-card-premium px-3.5 py-2.5 text-[11px] text-primary font-bold flex justify-center items-center gap-2 hover:border-primary/50 transition-all btn-press shadow-xl">
+                    <button onClick={() => setShowQuickSession(true)} className="flex-1 glass-card-premium px-3.5 py-2.5 text-[12px] text-primary font-bold flex justify-center items-center gap-2 hover:border-primary/50 transition-all btn-press shadow-xl">
                       <Zap className="w-3.5 h-3.5 fill-current" /> Express Session
                     </button>
-                    <button onClick={skipPlannedWorkout} className="flex-1 glass-card px-3.5 py-2.5 text-[11px] text-white/50 font-bold flex justify-center items-center gap-2 hover:text-white hover:bg-white/5 transition-all btn-press border-white/10">
+                    <button onClick={skipPlannedWorkout} className="flex-1 glass-card px-3.5 py-2.5 text-[12px] text-white/50 font-bold flex justify-center items-center gap-2 hover:text-white hover:bg-white/5 transition-all btn-press border-white/10">
                       Skip Planned Workout
                     </button>
                   </>
@@ -476,7 +476,7 @@ export default function WorkoutPage() {
               </div>
           {workout.warmup.map((w, i) => (
             <p key={i} className="text-sm text-foreground/80 py-0.5 font-medium leading-relaxed flex items-start gap-2">
-              <span className="text-primary/40 text-[10px] mt-1 font-black">{i + 1}</span>
+              <span className="text-primary/40 text-[12px] mt-1 font-black">{i + 1}</span>
               {w}
             </p>
           ))}
@@ -543,16 +543,16 @@ export default function WorkoutPage() {
                   </div>
                   <p className="text-sm text-primary font-medium mt-0">{setsArr.length} sets × {ex.reps}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-[10px] text-muted-foreground">{restTimeDisplay}s rest</p>
-                    <span className={`text-[10px] font-semibold px-2 py-0 rounded-full ${
+                    <p className="text-[11px] text-muted-foreground">{restTimeDisplay}s rest</p>
+                    <span className={`text-[11px] font-semibold px-2 py-0 rounded-full ${
                       allSetsDone ? 'bg-primary/20 text-primary' : setsCompleted > 0 ? 'bg-warning/15 text-warning' : 'bg-muted text-muted-foreground'
                     }`}>{setsCompleted}/{setsArr.length}</span>
                   </div>
                   {ft.personalRecords && pr && (
-                    <p className="text-[10px] text-primary mt-0.5">🏆 PR: {pr.bestReps} sets ({pr.date})</p>
+                    <p className="text-[11px] text-primary mt-0.5">🏆 PR: {pr.bestReps} sets ({pr.date})</p>
                   )}
                   {hasSupersetLink && (
-                    <p className="text-[10px] text-primary mt-0.5 flex items-center gap-1"><Link2 className="w-3 h-3" /> Superset</p>
+                    <p className="text-[11px] text-primary mt-0.5 flex items-center gap-1"><Link2 className="w-3 h-3" /> Superset</p>
                   )}
                 </div>
               </div>
@@ -567,7 +567,7 @@ export default function WorkoutPage() {
                       )}
                     </button>
                     {isReady && !completedSets[ex.name]?.[si] && setsCompleted === si && (
-                      <span className="text-[8px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">READY</span>
+                      <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">READY</span>
                     )}
                   </div>
                 ))}
@@ -618,8 +618,8 @@ export default function WorkoutPage() {
                 <Sparkles className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-[7px] font-black text-primary uppercase tracking-[0.2em] mb-0.5">Tactical_Cue</p>
-                <p className="text-[11px] font-bold text-white/90 leading-tight italic">
+                <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-0.5">Tactical_Cue</p>
+                <p className="text-[12px] font-bold text-white/90 leading-tight italic">
                   {completionStats.pct < 30 ? "Sync kinetic chain. Focus on slow eccentric phase." :
                    completionStats.pct < 70 ? "Volume phase complete. Maintain neural drive." :
                    "Final protocol. Max effort required."}
@@ -633,7 +633,7 @@ export default function WorkoutPage() {
       <button
         onClick={() => handleInteraction(() => doCompleteWorkout())}
         disabled={strictMode && !allDone && !quickSessionActive}
-        className={`w-full mt-6 h-14 text-[13px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all btn-press shadow-2xl ${
+        className={`w-full mt-6 h-14 text-[14px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all btn-press shadow-2xl ${
           allDone || quickSessionActive
             ? 'bg-primary text-primary-foreground shadow-primary/20'
             : nothingDone

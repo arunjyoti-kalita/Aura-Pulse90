@@ -34,12 +34,21 @@ export default function FoodLoggerModal({ open, onOpenChange, mealName, onAddFoo
 
   const filteredFoods = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return { custom: customFoods, db: foodDatabase };
+    if (!q) {
+      const dbFiltered = foodDatabase.filter(f => f.allowedMeals.includes(mealName));
+      return { custom: customFoods, db: dbFiltered };
+    }
+    const matches = foodDatabase.filter(f => f.name.toLowerCase().includes(q) || f.category.toLowerCase().includes(q));
+    const sortedMatches = [...matches].sort((a, b) => {
+      const aAllowed = a.allowedMeals.includes(mealName) ? 1 : 0;
+      const bAllowed = b.allowedMeals.includes(mealName) ? 1 : 0;
+      return bAllowed - aAllowed;
+    });
     return {
       custom: customFoods.filter(f => f.name.toLowerCase().includes(q)),
-      db: foodDatabase.filter(f => f.name.toLowerCase().includes(q) || f.category.toLowerCase().includes(q)),
+      db: sortedMatches,
     };
-  }, [search, customFoods]);
+  }, [search, customFoods, mealName]);
 
   const groupedDb = useMemo(() => {
     const groups: Record<string, FoodItem[]> = {};

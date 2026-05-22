@@ -1,14 +1,14 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Droplets, CheckCircle2, XCircle, Circle, Plus, Minus, Camera, Cookie, X, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { loadState, saveState, getToday, getDietLog, getWeeklyDietScore, genId } from "@/lib/store";
+import { loadState, saveState, getToday, getDietLog, getWeeklyDietScore, genId, useSyncState, patchState, formatDate } from "@/lib/store";
 import type { DietLog, FoodLogEntry } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import MacroTracker from "@/components/MacroTracker";
 import CalorieBalance from "@/components/CalorieBalance";
 import FoodLoggerModal from "@/components/FoodLoggerModal";
-import { foodDatabase, quickAddItems } from "@/lib/foodDatabase";
+import { foodDatabase, quickAddItems, quickAddItemsByMeal } from "@/lib/foodDatabase";
 
 const mealColors: Record<string, string> = {
   'Breakfast': 'border-l-amber-400',
@@ -245,7 +245,7 @@ export default function DietPage() {
             Dietary <span className="text-primary">Pulse</span>
           </p>
           <div className="flex items-center gap-3 mt-2">
-            <div className="px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary uppercase tracking-wider">
+            <div className="px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[11px] font-bold text-primary uppercase tracking-wider">
               Score: {weekScore}%
             </div>
             <p className="text-xs text-muted-foreground">
@@ -274,15 +274,15 @@ export default function DietPage() {
               <div className="flex items-center gap-2">
                 <div className="relative group-hover:scale-110 transition-transform">
                   {macroRing(dailyTotals.protein, proteinTarget, "hsl(var(--primary))", 32)}
-                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-primary">P</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-primary">P</div>
                 </div>
                 <div className="relative group-hover:scale-110 transition-transform delay-75">
                   {macroRing(dailyTotals.carbs, carbTarget, "hsl(210 80% 55%)", 40)}
-                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-info">C</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-info">C</div>
                 </div>
                 <div className="relative group-hover:scale-110 transition-transform delay-150">
                   {macroRing(dailyTotals.fat, fatTarget, "hsl(38 92% 50%)", 40)}
-                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-warning">F</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-warning">F</div>
                 </div>
               </div>
             </div>
@@ -325,7 +325,7 @@ export default function DietPage() {
           </div>
           <div className="flex-1 text-left">
             <p className="font-bold text-sm">Morning Hydration</p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">500ml upon waking</p>
+            <p className="text-[11px] text-muted-foreground uppercase tracking-widest mt-0.5">500ml upon waking</p>
           </div>
           {dietLog.waterOnWaking ? <CheckCircle2 className="w-6 h-6 text-primary" /> : <Circle className="w-6 h-6 text-muted-foreground/20" />}
         </motion.button>
@@ -370,7 +370,7 @@ export default function DietPage() {
                     <div key={entry.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-2.5 py-1.5">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm truncate">{entry.foodName} <span className="text-muted-foreground">×{entry.quantity}</span></p>
-                        <p className="text-[10px] text-muted-foreground">{entry.calories} cal · P{Math.round(entry.protein)}g · C{Math.round(entry.carbs)}g · F{Math.round(entry.fat)}g</p>
+                        <p className="text-[11px] text-muted-foreground">{entry.calories} cal · P{Math.round(entry.protein)}g · C{Math.round(entry.carbs)}g · F{Math.round(entry.fat)}g</p>
                       </div>
                       <button onClick={() => handleRemoveFood(entry.id)} className="p-1 ml-2 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors">
                         <X className="w-3.5 h-3.5" />
@@ -390,11 +390,11 @@ export default function DietPage() {
 
               {/* Quick Add Buttons */}
               <div className="mt-2 flex flex-wrap gap-2">
-                {quickAddItems.slice(0, 4).map(item => (
+                {(quickAddItemsByMeal[meal.name] || []).map(item => (
                   <button
                     key={item.id}
                     onClick={() => handleQuickAdd(meal.name, item)}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-secondary/40 hover:bg-secondary/60 border border-border/20 transition-colors text-[10px] font-medium"
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-secondary/40 hover:bg-secondary/60 border border-border/20 transition-colors text-[11px] font-medium animate-fade-in"
                   >
                     <span>{item.icon}</span>
                     <span>{item.name}</span>
@@ -442,7 +442,7 @@ export default function DietPage() {
             <Cookie className={`w-5 h-5 ${dietLog.cheatMeal ? 'text-amber-400' : 'text-muted-foreground'}`} />
             <div className="flex-1 text-left">
               <p className="font-medium text-sm">Weekly Cheat Meal</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {dietLog.cheatMeal ? '🎉 Logged today — enjoy!' : cheatUsedThisWeek ? 'Already used this week' : '1 guilt-free meal available'}
               </p>
             </div>

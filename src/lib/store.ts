@@ -756,9 +756,75 @@ export function parseSafe(dateStr: string): Date {
   return new Date(y, m - 1, d);
 }
 
+export function autoCheckHabits(s: AppState) {
+  const today = getToday();
+  if (!s.settings) s.settings = {} as any;
+  if (!s.settings.habitStacks) s.settings.habitStacks = [];
+  if (!s.habitCompletions) s.habitCompletions = [];
+
+  // 1. Log Sleep Quality habit auto-check
+  const hasSleepLog = s.sleepLogs && s.sleepLogs.some(l => l.date === today);
+  if (hasSleepLog) {
+    const sleepHabit = s.settings.habitStacks.find(h => 
+      h.enabled && 
+      (h.id === 'hs3' || h.action.toLowerCase().includes('sleep') || h.action.toLowerCase().includes('waking'))
+    );
+    if (sleepHabit) {
+      const alreadyDone = s.habitCompletions.some(c => c.date === today && c.habitId === sleepHabit.id);
+      if (!alreadyDone) {
+        s.habitCompletions.push({ date: today, habitId: sleepHabit.id });
+        if (s.settings.featureToggles?.xpSystem) {
+          s.xp = (s.xp || 0) + 5;
+        }
+      }
+    }
+  }
+
+  // 2. Log Meals habit auto-check
+  const todayDietLog = s.dietLogs && s.dietLogs.find(d => d.date === today);
+  const hasMealLog = todayDietLog && (
+    (todayDietLog.meals && todayDietLog.meals.some(m => m.status !== null)) ||
+    (todayDietLog.foodEntries && todayDietLog.foodEntries.length > 0)
+  );
+  if (hasMealLog) {
+    const mealHabit = s.settings.habitStacks.find(h => 
+      h.enabled && 
+      (h.id === 'hs4' || h.action.toLowerCase().includes('meal') || h.action.toLowerCase().includes('food') || h.action.toLowerCase().includes('eat'))
+    );
+    if (mealHabit) {
+      const alreadyDone = s.habitCompletions.some(c => c.date === today && c.habitId === mealHabit.id);
+      if (!alreadyDone) {
+        s.habitCompletions.push({ date: today, habitId: mealHabit.id });
+        if (s.settings.featureToggles?.xpSystem) {
+          s.xp = (s.xp || 0) + 5;
+        }
+      }
+    }
+  }
+
+  // 3. Breathe habit auto-check (at least 3 minutes)
+  const hasBreathing3Min = s.breathingSessions && s.breathingSessions.some(b => b.date === today && b.durationMinutes >= 3);
+  if (hasBreathing3Min) {
+    const breathingHabit = s.settings.habitStacks.find(h => 
+      h.enabled && 
+      (h.action.toLowerCase().includes('breathe') || h.action.toLowerCase().includes('meditat') || h.action.toLowerCase().includes('mindful'))
+    );
+    if (breathingHabit) {
+      const alreadyDone = s.habitCompletions.some(c => c.date === today && c.habitId === breathingHabit.id);
+      if (!alreadyDone) {
+        s.habitCompletions.push({ date: today, habitId: breathingHabit.id });
+        if (s.settings.featureToggles?.xpSystem) {
+          s.xp = (s.xp || 0) + 5;
+        }
+      }
+    }
+  }
+}
+
 export function patchState(updater: (s: AppState) => void) {
   const s = loadState();
   updater(s);
+  autoCheckHabits(s);
   saveState(s);
 }
 
@@ -1227,14 +1293,32 @@ export function getSleepStreak(sleepLogs: SleepLog[]): number {
 export function getMindfulnessStreak(state: AppState): number {
   let streak = 0;
   const today = new Date();
-  for (let i = 0; i < 90; i++) {
+  
+  const dsToday = formatDate(today);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const dsYesterday = formatDate(yesterday);
+
+  const doneToday = (state.breathingSessions && state.breathingSessions.some(b => b.date === dsToday && b.durationMinutes >= 3)) || (state.mindfulnessMinutes && (state.mindfulnessMinutes[dsToday] || 0) >= 3);
+  const doneYesterday = (state.breathingSessions && state.breathingSessions.some(b => b.date === dsYesterday && b.durationMinutes >= 3)) || (state.mindfulnessMinutes && (state.mindfulnessMinutes[dsYesterday] || 0) >= 3);
+
+  if (!doneToday && !doneYesterday) {
+    return 0; // Streak broken
+  }
+
+  const startOffset = doneToday ? 0 : 1;
+
+  for (let i = startOffset; i < 90; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const ds = formatDate(d);
-    const hasBreathing = state.breathingSessions.some(b => b.date === ds);
-    const hasMinutes = (state.mindfulnessMinutes[ds] || 0) > 0;
-    if (hasBreathing || hasMinutes) streak++;
-    else break;
+    const hasBreathing = state.breathingSessions && state.breathingSessions.some(b => b.date === ds && b.durationMinutes >= 3);
+    const hasMinutes = state.mindfulnessMinutes && (state.mindfulnessMinutes[ds] || 0) >= 3;
+    if (hasBreathing || hasMinutes) {
+      streak++;
+    } else {
+      break;
+    }
   }
   return streak;
 }

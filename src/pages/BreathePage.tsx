@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wind, Play, Square, Timer, Sparkles, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { loadState, saveState } from "@/lib/store";
+import { loadState, saveState, patchState, getToday } from "@/lib/store";
+import { toast } from "sonner";
 
 interface BreathConfig {
   id: string;
@@ -38,14 +39,33 @@ export default function BreathePage() {
   }, []);
 
   const stopSession = useCallback(() => {
+    const today = getToday();
+    const durationMin = Math.round((totalSeconds / 60) * 10) / 10;
+    
     if (totalSeconds > 30) {
-      const s = loadState();
-      s.xp = (s.xp || 0) + 15;
-      saveState(s);
+      patchState(s => {
+        let xpGained = 15;
+        if (totalSeconds >= 180) {
+          xpGained = 50; // Milestone XP!
+          s.breathingSessions = s.breathingSessions || [];
+          s.breathingSessions.push({
+            date: today,
+            type: (selected?.name || 'Box') as any,
+            durationMinutes: durationMin
+          });
+        }
+        s.xp = (s.xp || 0) + xpGained;
+        
+        if (totalSeconds >= 180) {
+          toast.success(`Session complete! Daily breathing streak active! +${xpGained} XP 🧘`);
+        } else {
+          toast.success(`Session logged! +${xpGained} XP`);
+        }
+      });
     }
     setIsActive(false);
     setSelected(null);
-  }, [totalSeconds]);
+  }, [totalSeconds, selected]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -79,10 +99,10 @@ export default function BreathePage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-black italic text-white tracking-tight leading-none uppercase">Respiratory</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Nervous System Calibration</p>
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">Nervous System Calibration</p>
         </div>
         {isActive && (
-          <Button variant="ghost" onClick={stopSession} className="h-8 text-[8px] font-black uppercase tracking-widest text-white/40 hover:text-white">
+          <Button variant="ghost" onClick={stopSession} className="h-8 text-[11px] font-black uppercase tracking-widest text-white/40 hover:text-white">
             <ChevronLeft className="w-3 h-3 mr-1" /> EXIT
           </Button>
         )}
@@ -107,10 +127,10 @@ export default function BreathePage() {
                     <span className="text-xs">{config.emoji}</span>
                   </div>
                   <p className="text-[12px] font-black text-white mb-1">{config.name}</p>
-                  <p className="text-[8px] text-white/40 font-bold uppercase tracking-wider mb-3 leading-tight">{config.description}</p>
+                  <p className="text-[11px] text-white/45 font-bold uppercase tracking-wider mb-3 leading-tight">{config.description}</p>
                   <div className="flex gap-1">
                     {[config.inhale, config.holdIn, config.exhale, config.holdOut].filter(v => v > 0).map((v, i) => (
-                      <div key={i} className="px-1.5 py-0.5 rounded-sm bg-white/5 text-[7px] font-black text-white/60">
+                      <div key={i} className="px-1.5 py-0.5 rounded-sm bg-white/5 text-[11px] font-bold text-white/60">
                         {v}S
                       </div>
                     ))}
@@ -122,9 +142,9 @@ export default function BreathePage() {
             <div className="mt-8 glass-card-premium p-4 border-white/5 bg-primary/5">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-3 h-3 text-primary" />
-                <p className="text-[9px] font-black text-primary uppercase tracking-widest">Protocol Tip</p>
+                <p className="text-[11px] font-black text-primary uppercase tracking-widest">Protocol Tip</p>
               </div>
-              <p className="text-[10px] text-white/60 leading-relaxed font-medium italic">
+              <p className="text-[11px] text-white/60 leading-relaxed font-medium italic">
                 Focus on expanding your diaphragm. Nasal breathing is prioritized for parasympathetic activation.
               </p>
             </div>
@@ -156,20 +176,20 @@ export default function BreathePage() {
               />
               
               <div className="text-center z-10">
-                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">{phase}</p>
+                <p className="text-[12px] font-black text-primary uppercase tracking-[0.3em] mb-2">{phase}</p>
                 <p className="text-5xl font-black text-white tabular-nums tracking-tighter">{timeLeft}</p>
               </div>
             </div>
 
             <div className="mt-16 text-center">
-              <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Session Duration</p>
+              <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Session Duration</p>
               <p className="text-xs font-mono text-white/40">{Math.floor(totalSeconds / 60)}:{(totalSeconds % 60).toString().padStart(2, '0')}</p>
             </div>
 
             <Button
               variant="outline"
               onClick={stopSession}
-              className="mt-12 h-10 px-8 rounded-full border-white/10 bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-destructive/10 hover:text-destructive transition-all"
+              className="mt-12 h-10 px-8 rounded-full border-white/10 bg-white/5 text-[11px] font-black uppercase tracking-widest hover:bg-destructive/10 hover:text-destructive transition-all"
             >
               STOP SESSION
             </Button>

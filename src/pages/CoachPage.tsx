@@ -122,7 +122,7 @@ export default function CoachPage() {
             </div>
             <div>
               <p className="font-bold text-sm">{coachName}</p>
-              <p className="text-[10px] text-primary">Autonomous AI Coach</p>
+              <p className="text-[11px] text-primary font-medium tracking-wide">Autonomous AI Coach</p>
             </div>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function CoachPage() {
             key={chip}
             onClick={() => sendMessage(chip)}
             disabled={isStreaming}
-            className="text-[10px] whitespace-nowrap px-3 py-2 rounded-full bg-secondary/30 border border-border/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all btn-press disabled:opacity-40"
+            className="text-[11px] whitespace-nowrap px-3 py-2 rounded-full bg-secondary/30 border border-border/40 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all btn-press disabled:opacity-40"
           >
             {chip}
           </button>

@@ -31,7 +31,7 @@ export default function MuscleHeatMap({ volume, recommended }: MuscleHeatMapProp
       className="glass-cockpit p-4 light-bleed"
     >
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Kinetic Heat Map</p>
+        <p className="text-[12px] font-black text-primary uppercase tracking-[0.2em]">Kinetic Heat Map</p>
         <div className="flex gap-1">
           {[1,2,3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-primary/20" />)}
         </div>
@@ -80,8 +80,8 @@ export default function MuscleHeatMap({ volume, recommended }: MuscleHeatMapProp
           return (
             <div key={muscle} className="flex flex-col gap-1">
               <div className="flex justify-between items-baseline">
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">{muscle}</span>
-                <span className="text-[8px] font-mono text-primary">{done}/{target}</span>
+                <span className="text-[11px] font-black text-white/40 uppercase tracking-widest">{muscle}</span>
+                <span className="text-[11px] font-mono text-primary">{done}/{target}</span>
               </div>
               <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                 <motion.div

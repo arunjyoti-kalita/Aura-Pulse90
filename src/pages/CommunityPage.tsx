@@ -42,7 +42,7 @@ export default function CommunityPage() {
           </div>
           <div className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
             <Users className="w-3 h-3 text-primary" />
-            <span className="text-[10px] font-bold text-primary">{leaderboard.length}</span>
+            <span className="text-[12px] font-bold text-primary">{leaderboard.length}</span>
           </div>
         </div>
 
@@ -63,13 +63,13 @@ export default function CommunityPage() {
                   {entry.photoURL ? (
                     <img src={entry.photoURL} className="w-8 h-8 rounded-full border border-border/50" alt="" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary border border-primary/20">
                       {entry.displayName?.slice(0, 1).toUpperCase()}
                     </div>
                   )}
                   <div className="flex flex-col">
                     <span className="text-sm font-bold">{entry.displayName || "Pulse Runner"}</span>
-                    {idx === 0 && <span className="text-[8px] text-primary font-bold uppercase tracking-widest">Grandmaster</span>}
+                    {idx === 0 && <span className="text-[11px] text-primary font-bold uppercase tracking-widest">Grandmaster</span>}
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
@@ -77,7 +77,7 @@ export default function CommunityPage() {
                     <Zap className="w-3 h-3 text-primary fill-primary" />
                     <span className="text-sm font-display font-bold text-primary">{entry.xp.toLocaleString()}</span>
                   </div>
-                  <span className="text-[8px] text-muted-foreground uppercase">XP Earned</span>
+                  <span className="text-[11px] text-muted-foreground uppercase font-semibold">XP Earned</span>
                 </div>
               </div>
             )) : (
@@ -88,7 +88,7 @@ export default function CommunityPage() {
           </div>
         )}
         
-        <p className="text-[10px] text-muted-foreground text-center mt-4">XP is updated whenever you sync to the cloud.</p>
+        <p className="text-[12px] text-muted-foreground text-center mt-4">XP is updated whenever you sync to the cloud.</p>
       </motion.div>
     </div>
   );

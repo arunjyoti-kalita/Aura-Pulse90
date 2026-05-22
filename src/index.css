@@ -121,7 +121,7 @@
   }
 
   .section-label {
-    @apply text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold;
+    @apply text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-bold;
   }
 
   /* Button micro-interactions */

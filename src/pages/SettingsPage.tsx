@@ -38,7 +38,7 @@ function Section({ title, children, defaultOpen = false }: { title: string; chil
   return (
     <div className="glass-card-premium overflow-hidden border border-white/5 bg-white/[0.02]">
       <button onClick={() => setOpen(!open)} className="w-full p-3 flex items-center justify-between text-left group hover:bg-white/5 transition-colors">
-        <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">{title}</span>
+        <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">{title}</span>
         <div className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}>
           <ChevronDown className="w-3 h-3 text-white/20" />
         </div>
@@ -59,7 +59,7 @@ function Section({ title, children, defaultOpen = false }: { title: string; chil
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[10px] text-white/40 font-black uppercase tracking-widest truncate">{label}</span>
+      <span className="text-[11px] text-white/40 font-black uppercase tracking-widest truncate">{label}</span>
       <div className="flex-1 max-w-[140px]">{children}</div>
     </div>
   );
@@ -309,7 +309,7 @@ export default function SettingsPage() {
         </button>
         <div>
           <h1 className="text-xl font-black italic text-white tracking-tight leading-none uppercase">Parameters</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">System Core Configuration</p>
+          <p className="text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">System Core Configuration</p>
         </div>
       </motion.div>
 
@@ -323,11 +323,11 @@ export default function SettingsPage() {
         <Section title="FEATURE OVERRIDES" defaultOpen={false}>
           {featureGroups.map(group => (
             <div key={group} className="mb-4 last:mb-0">
-              <p className="text-[7px] text-primary font-black uppercase tracking-[0.3em] mb-2 opacity-60">{group}</p>
+              <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mb-2 opacity-60">{group}</p>
               <div className="grid grid-cols-1 gap-2">
                 {featureLabels.filter(f => f.group === group).map(f => (
                   <div key={f.key} className="flex items-center justify-between group">
-                    <span className="text-[10px] text-white/60 font-medium group-hover:text-white transition-colors">{f.label}</span>
+                    <span className="text-[11px] text-white/60 font-medium group-hover:text-white transition-colors">{f.label}</span>
                     <Switch 
                       checked={settings.featureToggles[f.key]} 
                       onCheckedChange={() => toggleFeature(f.key)} 
@@ -386,14 +386,14 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm">Strict Mode</span>
-              <p className="text-[10px] text-muted-foreground">Require all sets before completing</p>
+              <p className="text-[11px] text-muted-foreground">Require all sets before completing</p>
             </div>
             <Switch checked={settings.strictMode} onCheckedChange={v => update({ strictMode: v })} />
           </div>
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm">Partial workouts count toward streak</span>
-              <p className="text-[10px] text-muted-foreground">Showing up matters</p>
+              <p className="text-[11px] text-muted-foreground">Showing up matters</p>
             </div>
             <Switch checked={settings.partialCountsTowardStreak} onCheckedChange={v => update({ partialCountsTowardStreak: v })} />
           </div>
@@ -411,7 +411,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-7 gap-1">
               {dayNames.map((name, i) => (
                 <div key={i} className="text-center">
-                  <p className="text-[10px] text-muted-foreground mb-1">{name}</p>
+                  <p className="text-[11px] text-muted-foreground mb-1">{name}</p>
                   <Select value={settings.weeklySchedule[i]} onValueChange={v => {
                     const sched = [...settings.weeklySchedule];
                     sched[i] = v as 'A' | 'B' | 'C' | 'Rest';
@@ -449,7 +449,7 @@ export default function SettingsPage() {
                   <Input
                     value={ex.youtubeUrl || ''}
                     onChange={e => updateExercise(workout.type, ex.id, { youtubeUrl: e.target.value })}
-                    className="h-6 text-[10px]"
+                    className="h-6 text-[11px]"
                     placeholder="YouTube URL (optional)"
                   />
                 </div>
@@ -824,10 +824,10 @@ export default function SettingsPage() {
             >
               <Download className="w-4 h-4" /> ⬇ Download Full Backup
             </button>
-            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
+            <p className="text-[11px] text-muted-foreground text-center mt-1.5">
               Use this to restore your data on another browser or device
             </p>
-            <div className="mt-1.5 text-[10px] text-muted-foreground text-center space-y-0.5">
+            <div className="mt-1.5 text-[11px] text-muted-foreground text-center space-y-0.5">
               <p>
                 Last backup: {backupMeta.lastBackupDate
                   ? new Date(backupMeta.lastBackupDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -853,7 +853,7 @@ export default function SettingsPage() {
             <Button variant="outline" onClick={downloadCSV} className="w-full">
               <Download className="w-4 h-4 mr-2" /> Export Progress as CSV
             </Button>
-            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
+            <p className="text-[11px] text-muted-foreground text-center mt-1.5">
               Use this to view your progress in Excel or Google Sheets — cannot be used for restore
             </p>
           </div>
@@ -890,7 +890,7 @@ export default function SettingsPage() {
               <li>Send the file to yourself with WhatsApp, email, Google Drive, or USB.</li>
               <li>Open Transform 90 on the new browser or device.</li>
               <li>Go to Admin → <strong>Restore From Backup</strong>.</li>
-              <li>Select the <code className="text-[10px]">transform90-FULLBACKUP-*.json</code> file — your data will be fully restored.</li>
+              <li>Select the <code className="text-[11px]">transform90-FULLBACKUP-*.json</code> file — your data will be fully restored.</li>
               <li>The app reloads automatically and verifies that your progress came back.</li>
             </ol>
           </details>
@@ -1111,10 +1111,10 @@ function RestoreButton({
             <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); e.stopPropagation(); fileRef.current?.click(); }} className="w-full">
               <Upload className="w-4 h-4 mr-2" /> ⬆ Select Backup File
             </Button>
-            <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-              Select your <code className="text-[10px]">transform90-FULLBACKUP</code> JSON file
+            <p className="text-[11px] text-muted-foreground text-center mt-1.5">
+              Select your <code className="text-[11px]">transform90-FULLBACKUP</code> JSON file
             </p>
-            <p className="text-[10px] text-amber-500 text-center mt-0.5">
+            <p className="text-[11px] text-amber-500 text-center mt-0.5">
               Only accepts Full Backup JSON files — not CSV files
             </p>
           </>
@@ -1129,7 +1129,7 @@ function RestoreButton({
             <Button type="button" variant="outline" onClick={handlePasteRestore} className="w-full">
               <Upload className="w-4 h-4 mr-2" /> ⬆ Restore From Pasted Text
             </Button>
-            <p className="text-[10px] text-muted-foreground text-center">
+            <p className="text-[11px] text-muted-foreground text-center">
               Use this if the download didn't work and you copied the backup text instead
             </p>
           </div>

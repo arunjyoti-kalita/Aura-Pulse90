@@ -18,9 +18,9 @@ export default function BadgesPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-black italic text-white tracking-tight leading-none uppercase">Prestige</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Gamification & Kinetic Growth</p>
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">Gamification & Kinetic Growth</p>
         </div>
-        <div className="px-2 py-1 rounded bg-primary/10 border border-primary/20 text-[9px] font-black text-primary uppercase">
+        <div className="px-2 py-1 rounded bg-primary/10 border border-primary/20 text-[11px] font-black text-primary uppercase">
           {earned} / {state.badges.length} EARNED
         </div>
       </div>
@@ -32,11 +32,11 @@ export default function BadgesPage() {
             <Trophy className="w-12 h-12 text-primary" />
           </div>
           <div>
-            <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Current Tier</p>
+            <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-1">Current Tier</p>
             <p className="text-xl font-black text-white leading-tight uppercase">{level.name}</p>
           </div>
           <div className="space-y-1">
-             <div className="flex justify-between text-[7px] font-bold text-white/40 uppercase">
+             <div className="flex justify-between text-[11px] font-bold text-white/40 uppercase">
                <span>LVL {level.level}</span>
                <span>{state.xp} XP</span>
              </div>
@@ -47,7 +47,7 @@ export default function BadgesPage() {
         </div>
 
         <div className="glass-card-premium p-3 border-white/5 flex flex-col justify-between h-32">
-          <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-2">XP Breakdown</p>
+          <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-2">XP Breakdown</p>
           <div className="space-y-1.5">
             {[
               { action: 'Workout', xp: '50' },
@@ -56,8 +56,8 @@ export default function BadgesPage() {
               { action: 'Steps', xp: '30' },
             ].map(item => (
               <div key={item.action} className="flex justify-between items-center">
-                <span className="text-[9px] text-white/40 font-bold uppercase">{item.action}</span>
-                <span className="text-[9px] text-primary font-black">+{item.xp}</span>
+                <span className="text-[11px] text-white/40 font-bold uppercase">{item.action}</span>
+                <span className="text-[11px] text-primary font-black">+{item.xp}</span>
               </div>
             ))}
           </div>
@@ -69,15 +69,15 @@ export default function BadgesPage() {
         {state.badges.map((badge, i) => (
           <div
             key={badge.id}
-            className={`glass-card-premium p-3 text-center border-white/5 flex flex-col items-center justify-between min-h-[100px] transition-all duration-500 ${badge.earned ? 'bg-primary/5 border-primary/20' : 'opacity-20 grayscale'}`}
+            className={`glass-card-premium p-3 text-center border-white/5 flex flex-col items-center justify-between min-h-[110px] transition-all duration-500 ${badge.earned ? 'bg-primary/5 border-primary/20' : 'opacity-20 grayscale'}`}
           >
             <div className="text-2xl mb-1">{badge.emoji}</div>
             <div className="space-y-0.5">
-              <p className="text-[9px] font-black text-white leading-tight uppercase line-clamp-1">{badge.name}</p>
-              <p className="text-[7px] text-white/30 font-bold leading-none line-clamp-2">{badge.description}</p>
+              <p className="text-[11px] font-bold text-white leading-tight uppercase line-clamp-1">{badge.name}</p>
+              <p className="text-[11px] text-white/40 font-bold leading-tight line-clamp-2">{badge.description}</p>
             </div>
             <div className="mt-2">
-              <div className={`px-1.5 py-0.5 rounded-sm text-[6px] font-black uppercase ${badge.earned ? 'bg-primary text-black' : 'bg-white/5 text-white/40'}`}>
+              <div className={`px-1.5 py-0.5 rounded-sm text-[11px] font-bold uppercase ${badge.earned ? 'bg-primary text-black' : 'bg-white/5 text-white/40'}`}>
                 {badge.earned ? 'UNLOCKED' : 'LOCKED'}
               </div>
             </div>

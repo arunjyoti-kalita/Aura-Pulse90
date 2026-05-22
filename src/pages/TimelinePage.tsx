@@ -93,14 +93,14 @@ export default function TimelinePage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-black italic text-white tracking-tight leading-none">TIMELINE</h1>
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1">Day {Math.min(currentDay, 90)} / 90</p>
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] mt-1">Day {Math.min(currentDay, 90)} / 90</p>
         </div>
         {/* Legend */}
         <div className="flex items-center gap-2">
           {['A', 'B', 'C'].map(t => (
-            <span key={t} className={`text-[9px] font-black px-1.5 py-0.5 rounded ${TYPE_CONFIG[t].bg} ${TYPE_CONFIG[t].text}`}>{t}</span>
+            <span key={t} className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${TYPE_CONFIG[t].bg} ${TYPE_CONFIG[t].text}`}>{t}</span>
           ))}
-          <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">SKP</span>
+          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">SKP</span>
         </div>
       </div>
 
@@ -126,15 +126,15 @@ export default function TimelinePage() {
                 }`}
               >
                 {isCurrent ? (
-                  <span className="text-[9px] font-black leading-none">{day.dayNum}</span>
+                  <span className="text-[11px] font-bold leading-none">{day.dayNum}</span>
                 ) : day.status === 'upcoming' ? (
-                  <span className="text-[9px] font-black leading-none text-white/10">{day.dayNum}</span>
+                  <span className="text-[11px] font-bold leading-none text-white/10">{day.dayNum}</span>
                 ) : (day.status === 'done' || day.status === 'partial') ? (
-                  <span className={`text-[10px] font-black leading-none ${typeStyle ? typeStyle.text : 'text-white/40'}`}>
+                  <span className={`text-[12px] font-bold leading-none ${typeStyle ? typeStyle.text : 'text-white/40'}`}>
                     {workoutType && workoutType !== 'Rest' ? workoutType : <cfg.icon className={`w-3 h-3 ${cfg.iconColor}`} strokeWidth={3} />}
                   </span>
                 ) : day.status === 'skipped' ? (
-                  <span className="text-[9px] font-black leading-none text-orange-400">SKP</span>
+                  <span className="text-[11px] font-bold leading-none text-orange-400">SKP</span>
                 ) : day.status === 'rest' ? (
                   <Coffee className="w-3 h-3 text-blue-400" strokeWidth={3} />
                 ) : (
@@ -155,15 +155,15 @@ export default function TimelinePage() {
       <div className="flex gap-2 mb-6">
         {PHASES.map(p => (
           <div key={p.title} className="flex-1 bg-white/5 border border-white/5 rounded-xl p-2 text-center">
-            <p className={`text-[8px] font-black uppercase tracking-widest ${p.color}`}>{p.title}</p>
-            <p className="text-[8px] text-white/20 mt-0.5">D{p.start}–{p.end}</p>
+            <p className={`text-[11px] font-bold uppercase tracking-widest ${p.color}`}>{p.title}</p>
+            <p className="text-[11px] text-white/35 mt-0.5">D{p.start}–{p.end}</p>
           </div>
         ))}
       </div>
 
       {/* Mini Milestones List */}
       <div className="space-y-2">
-        <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-2 px-1">Milestones</p>
+        <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 px-1">Milestones</p>
         {milestones.map((m, i) => {
           const reached = currentDay >= m.day;
           return (
@@ -174,8 +174,8 @@ export default function TimelinePage() {
               <div className="text-lg">{reached ? '🏆' : '🔒'}</div>
               <div className="flex-1">
                 <div className="flex justify-between items-center">
-                  <p className="text-[11px] font-bold text-white uppercase tracking-tight">{m.title}</p>
-                  <span className="text-[9px] font-black text-white/20">D{m.day}</span>
+                  <p className="text-[12px] font-bold text-white uppercase tracking-tight">{m.title}</p>
+                  <span className="text-[11px] font-black text-white/40 font-mono">D{m.day}</span>
                 </div>
               </div>
             </div>
@@ -211,15 +211,15 @@ export default function TimelinePage() {
                           <h3 className="text-2xl font-black italic text-white leading-none">DAY {selectedDay}</h3>
                           {/* Workout type badge */}
                           {workoutType && !day.log?.isSkipped && (
-                            <span className={`text-[11px] font-black px-2 py-0.5 rounded-lg ${typeStyle?.bg} ${typeStyle?.text}`}>
+                            <span className={`text-[13px] font-bold px-2 py-0.5 rounded-lg ${typeStyle?.bg} ${typeStyle?.text}`}>
                               {workoutType}
                             </span>
                           )}
                           {day.log?.isSkipped && (
-                            <span className="text-[11px] font-black px-2 py-0.5 rounded-lg bg-orange-500/20 text-orange-400">SKIPPED</span>
+                            <span className="text-[13px] font-bold px-2 py-0.5 rounded-lg bg-orange-500/20 text-orange-400">SKIPPED</span>
                           )}
                         </div>
-                        <p className="text-white/30 text-[9px] font-bold uppercase tracking-[0.2em] mt-1.5">{day.ds}</p>
+                        <p className="text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] mt-1.5">{day.ds}</p>
                       </div>
                       <button onClick={() => setSelectedDay(null)} className="p-1.5 bg-white/5 rounded-lg">
                         <X className="w-4 h-4 text-white/40" />
@@ -230,29 +230,29 @@ export default function TimelinePage() {
                       <div className="grid grid-cols-2 gap-2">
                         {/* Status */}
                         <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                          <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Status</p>
+                          <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-1">Status</p>
                           <div className="flex items-center gap-1.5">
                             <cfg.icon className={`w-3 h-3 ${cfg.iconColor}`} />
-                            <p className="text-[10px] font-bold text-white uppercase">{cfg.label}</p>
+                            <p className="text-[12px] font-bold text-white uppercase">{cfg.label}</p>
                           </div>
                         </div>
                         {/* Water */}
                         <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                          <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Water</p>
-                          <p className="text-[10px] font-bold text-white uppercase">{day.dietLog.waterGlasses} Glasses</p>
+                          <p className="text-[11px] font-black text-white/30 uppercase tracking-widest mb-1">Water</p>
+                          <p className="text-[12px] font-bold text-white uppercase">{day.dietLog.waterGlasses} Glasses</p>
                         </div>
                       </div>
 
                       {/* Workout detail card */}
                       {day.log && !day.log.isSkipped && workoutType && (
                         <div className={`p-3 rounded-xl border ${typeStyle?.bg} border-white/10`}>
-                          <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Workout</p>
+                          <p className="text-[11px] font-black text-white/40 uppercase tracking-widest mb-1">Workout</p>
                           <div className="flex items-center justify-between">
                             <p className={`text-sm font-black uppercase ${typeStyle?.text}`}>
                               Type {workoutType} — {typeNames[workoutType] ?? ''}
                             </p>
                             {day.log.durationSeconds && (
-                              <span className="text-[9px] font-bold text-white/40">
+                              <span className="text-[11px] font-bold text-white/40">
                                 {Math.floor(day.log.durationSeconds / 60)}m {day.log.durationSeconds % 60}s
                               </span>
                             )}
@@ -260,8 +260,8 @@ export default function TimelinePage() {
                           {day.log.completionPct !== undefined && (
                             <div className="mt-2">
                               <div className="flex justify-between mb-1">
-                                <span className="text-[8px] text-white/20 uppercase tracking-widest">Completion</span>
-                                <span className="text-[8px] font-black text-white/40">{day.log.completionPct}%</span>
+                                <span className="text-[11px] text-white/30 uppercase tracking-widest">Completion</span>
+                                <span className="text-[11px] font-black text-white/40">{day.log.completionPct}%</span>
                               </div>
                               <div className="w-full bg-white/5 rounded-full h-1">
                                 <div
@@ -277,8 +277,8 @@ export default function TimelinePage() {
                       {/* Skipped detail */}
                       {day.log?.isSkipped && (
                         <div className="p-3 rounded-xl border bg-orange-500/10 border-orange-500/20">
-                          <p className="text-[8px] font-black text-orange-400/60 uppercase tracking-widest mb-1">Skipped Session</p>
-                          <p className="text-[10px] font-bold text-white/60">
+                          <p className="text-[11px] font-black text-orange-400/80 uppercase tracking-widest mb-1">Skipped Session</p>
+                          <p className="text-[12px] font-bold text-white/70">
                             Type {day.log.type} workout was skipped. Schedule shifted forward.
                           </p>
                         </div>
