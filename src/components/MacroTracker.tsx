@@ -31,12 +31,18 @@ export default function MacroTracker({ macroLogs, proteinTarget, carbTarget, fat
   const todayLogs = useMemo(() => macroLogs.filter(l => l.date === today), [macroLogs, today]);
 
   const totals = useMemo(() => {
-    return todayLogs.reduce((acc, l) => ({
+    const raw = todayLogs.reduce((acc, l) => ({
       protein: acc.protein + l.protein,
       carbs: acc.carbs + l.carbs,
       fat: acc.fat + l.fat,
       calories: acc.calories + l.calories,
     }), { protein: 0, carbs: 0, fat: 0, calories: 0 });
+    return {
+      protein: Math.round(raw.protein * 100) / 100,
+      carbs: Math.round(raw.carbs * 100) / 100,
+      fat: Math.round(raw.fat * 100) / 100,
+      calories: Math.round(raw.calories),
+    };
   }, [todayLogs]);
 
   const logMacro = useCallback(() => {
@@ -83,7 +89,7 @@ export default function MacroTracker({ macroLogs, proteinTarget, carbTarget, fat
       <div className="mb-2">
         <div className="flex justify-between text-xs mb-1">
           <span className="text-muted-foreground">{label}</span>
-          <span className={statusColor}>{current}g / {target}g</span>
+          <span className={statusColor}>{Math.round(current * 100) / 100}g / {target}g</span>
         </div>
         <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
           <div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.min(100, pct)}%`, background: color }} />

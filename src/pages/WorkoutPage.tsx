@@ -7,7 +7,7 @@ import WorkoutMusic from "@/components/WorkoutMusic";
 import QuickSessionSelector from "@/components/QuickSessionSelector";
 import AIFormCheck from "@/components/AIFormCheck";
 import InlineRestTimer from "@/components/InlineRestTimer";
-import { loadState, saveState, useSyncState, getTodayWorkoutType, getToday, calculateWorkoutIntensity, checkAndAwardBadges, getProgressionSuggestions, getWorkoutDifficulty, deskExercises } from "@/lib/store";
+import { loadState, saveState, useSyncState, getTodayWorkoutType, getToday, calculateWorkoutIntensity, checkAndAwardBadges, getProgressionSuggestions, getWorkoutDifficulty, deskExercises, patchState } from "@/lib/store";
 import type { CustomWorkout, Exercise, PersonalRecord, QuickSession } from "@/lib/store";
 import { toast } from "sonner";
 import { fireConfetti } from "@/lib/confetti";
@@ -631,7 +631,13 @@ export default function WorkoutPage() {
       </AnimatePresence>
 
       <button
-        onClick={() => handleInteraction(() => doCompleteWorkout())}
+        onClick={() => handleInteraction(() => {
+          if (nothingDone && !strictMode && !quickSessionActive) {
+            skipPlannedWorkout();
+          } else {
+            doCompleteWorkout();
+          }
+        })}
         disabled={strictMode && !allDone && !quickSessionActive}
         className={`w-full mt-6 h-14 text-[14px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all btn-press shadow-2xl ${
           allDone || quickSessionActive

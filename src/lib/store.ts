@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 // Local storage based data layer for Transform 90
 
 export interface Exercise {
@@ -720,8 +722,6 @@ export function loadState(): AppState {
   return { ...defaultState };
 }
 
-import { useState, useEffect } from "react";
-
 export function useSyncState() {
   const [state, setState] = useState(() => loadState());
 
@@ -767,7 +767,7 @@ export function autoCheckHabits(s: AppState) {
   if (hasSleepLog) {
     const sleepHabit = s.settings.habitStacks.find(h => 
       h.enabled && 
-      (h.id === 'hs3' || h.action.toLowerCase().includes('sleep') || h.action.toLowerCase().includes('waking'))
+      (h.id === 'hs3' || (h.action || '').toLowerCase().includes('sleep') || (h.action || '').toLowerCase().includes('waking'))
     );
     if (sleepHabit) {
       const alreadyDone = s.habitCompletions.some(c => c.date === today && c.habitId === sleepHabit.id);
@@ -789,7 +789,7 @@ export function autoCheckHabits(s: AppState) {
   if (hasMealLog) {
     const mealHabit = s.settings.habitStacks.find(h => 
       h.enabled && 
-      (h.id === 'hs4' || h.action.toLowerCase().includes('meal') || h.action.toLowerCase().includes('food') || h.action.toLowerCase().includes('eat'))
+      (h.id === 'hs4' || (h.action || '').toLowerCase().includes('meal') || (h.action || '').toLowerCase().includes('food') || (h.action || '').toLowerCase().includes('eat'))
     );
     if (mealHabit) {
       const alreadyDone = s.habitCompletions.some(c => c.date === today && c.habitId === mealHabit.id);
@@ -807,7 +807,7 @@ export function autoCheckHabits(s: AppState) {
   if (hasBreathing3Min) {
     const breathingHabit = s.settings.habitStacks.find(h => 
       h.enabled && 
-      (h.action.toLowerCase().includes('breathe') || h.action.toLowerCase().includes('meditat') || h.action.toLowerCase().includes('mindful'))
+      ((h.action || '').toLowerCase().includes('breathe') || (h.action || '').toLowerCase().includes('meditat') || (h.action || '').toLowerCase().includes('mindful'))
     );
     if (breathingHabit) {
       const alreadyDone = s.habitCompletions.some(c => c.date === today && c.habitId === breathingHabit.id);
@@ -961,7 +961,10 @@ export function getWeekWorkoutCount(startDate: string, workoutLogs: WorkoutLog[]
 
 export function getDietLog(dietLogs: DietLog[], date: string, meals?: MealConfig[]): DietLog {
   const existing = dietLogs.find(d => d.date === date);
-  if (existing) return existing;
+  if (existing) {
+    existing.meals = existing.meals || [];
+    return existing;
+  }
   const mealNames = meals?.filter(m => m.enabled) || defaultMeals;
   return {
     date,
@@ -984,7 +987,7 @@ export function getWeeklyDietScore(dietLogs: DietLog[], startDate: string): numb
   if (!weekLogs.length) return 0;
   let clean = 0, total = 0;
   weekLogs.forEach(d => {
-    d.meals.forEach(m => {
+    (d.meals || []).forEach(m => {
       if (m.status) { total++; if (m.status === 'clean') clean++; }
     });
   });
@@ -997,7 +1000,7 @@ export function exportDataAsCSV(state: AppState): string {
     csv += `Workout,${w.date},"Type ${w.type} completed at ${w.completedAt}"\n`;
   });
   state.dietLogs.forEach(d => {
-    const meals = d.meals.map(m => `${m.name}:${m.status || 'none'}`).join('; ');
+    const meals = (d.meals || []).map(m => `${m.name}:${m.status || 'none'}`).join('; ');
     csv += `Diet,${d.date},"Water:${d.waterGlasses} WaterOnWaking:${d.waterOnWaking} ${meals}"\n`;
   });
   state.progressEntries.forEach(p => {
@@ -1026,9 +1029,9 @@ export function calculateBodyFat(weight: number, waist: number, height: number, 
 
 export function calculateWorkoutIntensity(workout: WorkoutLog, exercises: Exercise[]): number {
   let score = 0;
-  const sets = workout.completedSets;
+  const sets = workout.completedSets || {};
   for (const exName in sets) {
-    const completed = sets[exName].filter(Boolean).length;
+    const completed = (sets[exName] || []).filter(Boolean).length;
     const ex = exercises.find(e => e.name === exName);
     score += completed * 10;
     if (ex && ex.rest <= 45) score += completed * 3;
@@ -1099,7 +1102,7 @@ export function getMonthlyGrade(state: AppState): { grade: string; score: number
   });
   let clean = 0, total = 0;
   monthLogs.forEach(d => {
-    d.meals.forEach(m => {
+    (d.meals || []).forEach(m => {
       if (m.status) { total++; if (m.status === 'clean') clean++; }
     });
   });
@@ -1133,7 +1136,7 @@ export function generateWeeklySummary(state: AppState, weekNum: number): WeeklyS
   const avgWater = dietLogs.length ? Math.round(dietLogs.reduce((s, d) => s + d.waterGlasses, 0) / dietLogs.length * 10) / 10 : 0;
   let clean2 = 0, total2 = 0;
   dietLogs.forEach(d => {
-    d.meals.forEach(m => {
+    (d.meals || []).forEach(m => {
       if (m.status) { total2++; if (m.status === 'clean') clean2++; }
     });
   });
@@ -1177,7 +1180,7 @@ export function getLevel(xp: number): { name: string; level: number } {
 
 export function checkAndAwardBadges(state: AppState): { state: AppState; newBadges: string[] } {
   const newBadges: string[] = [];
-  const badges = [...state.badges];
+  const badges = Array.isArray(state.badges) ? [...state.badges] : [];
   const streak = getStreak(state.workoutLogs);
   
   const award = (id: string) => {
@@ -1338,7 +1341,7 @@ export function getWeeklyMuscleVolume(state: AppState): Record<string, number> {
     if (!workout) return;
     workout.exercises.forEach(ex => {
       if (!ex.enabled) return;
-      const completedCount = (log.completedSets[ex.name] || []).filter(Boolean).length;
+      const completedCount = (log.completedSets?.[ex.name] || []).filter(Boolean).length;
       const muscles = ex.muscleGroups || defaultMuscleGroups[ex.name] || [];
       muscles.forEach(m => {
         volume[m] = (volume[m] || 0) + completedCount;
@@ -1391,8 +1394,8 @@ export function getProgressionSuggestions(state: AppState, workoutType: 'A' | 'B
   
   workout.exercises.forEach(ex => {
     if (!ex.enabled) return;
-    const latestSets = (latest.completedSets[ex.name] || []).filter(Boolean).length;
-    const prevSets = (previous.completedSets[ex.name] || []).filter(Boolean).length;
+    const latestSets = (latest.completedSets?.[ex.name] || []).filter(Boolean).length;
+    const prevSets = (previous.completedSets?.[ex.name] || []).filter(Boolean).length;
     if (latestSets >= prevSets && latestSets >= ex.sets) {
       suggestions.push({
         exerciseName: ex.name,

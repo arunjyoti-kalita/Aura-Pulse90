@@ -79,12 +79,63 @@ export default function DietPage() {
   };
 
   const handleAddFood = (entry: FoodLogEntry) => {
-    const updated = { ...dietLog, foodEntries: [...foodEntries, entry] };
-    persist(updated);
+    const existingIdx = foodEntries.findIndex(
+      e => e.mealName === entry.mealName && ((e.foodId && e.foodId === entry.foodId) || e.foodName === entry.foodName)
+    );
+
+    if (existingIdx > -1) {
+      const existing = foodEntries[existingIdx];
+      const newQty = existing.quantity + entry.quantity;
+      const updatedEntry = {
+        ...existing,
+        quantity: newQty,
+        calories: Math.round(existing.calories + entry.calories),
+        protein: Math.round((existing.protein + entry.protein) * 10) / 10,
+        carbs: Math.round((existing.carbs + entry.carbs) * 10) / 10,
+        fat: Math.round((existing.fat + entry.fat) * 10) / 10,
+      };
+
+      const newEntries = [...foodEntries];
+      newEntries[existingIdx] = updatedEntry;
+      persist({ ...dietLog, foodEntries: newEntries });
+    } else {
+      persist({ ...dietLog, foodEntries: [...foodEntries, entry] });
+    }
   };
 
   const handleRemoveFood = (entryId: string) => {
     const updated = { ...dietLog, foodEntries: foodEntries.filter(e => e.id !== entryId) };
+    persist(updated);
+  };
+
+  const handleAdjustQuantity = (entryId: string, delta: number) => {
+    const entry = foodEntries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    const newQty = entry.quantity + delta;
+    if (newQty <= 0) {
+      handleRemoveFood(entryId);
+      return;
+    }
+
+    const singleCal = entry.calories / entry.quantity;
+    const singleProt = entry.protein / entry.quantity;
+    const singleCarbs = entry.carbs / entry.quantity;
+    const singleFat = entry.fat / entry.quantity;
+
+    const updatedEntry = {
+      ...entry,
+      quantity: newQty,
+      calories: Math.round(singleCal * newQty),
+      protein: Math.round(singleProt * newQty * 10) / 10,
+      carbs: Math.round(singleCarbs * newQty * 10) / 10,
+      fat: Math.round(singleFat * newQty * 10) / 10,
+    };
+
+    const updated = {
+      ...dietLog,
+      foodEntries: foodEntries.map(e => e.id === entryId ? updatedEntry : e)
+    };
     persist(updated);
   };
 
@@ -368,11 +419,22 @@ export default function DietPage() {
                 <div className="mt-3 space-y-1.5">
                   {mealEntries.map(entry => (
                     <div key={entry.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-2.5 py-1.5">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm truncate">{entry.foodName} <span className="text-muted-foreground">×{entry.quantity}</span></p>
-                        <p className="text-[11px] text-muted-foreground">{entry.calories} cal · P{Math.round(entry.protein)}g · C{Math.round(entry.carbs)}g · F{Math.round(entry.fat)}g</p>
+                      <div className="flex-1 min-w-0 flex items-center justify-between mr-2">
+                        <div className="min-w-0 pr-2">
+                          <p className="text-sm truncate font-medium text-white/90">{entry.foodName}</p>
+                          <p className="text-[11px] text-muted-foreground">{entry.calories} cal · P{Math.round(entry.protein)}g · C{Math.round(entry.carbs)}g · F{Math.round(entry.fat)}g</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-background/40 border border-border/10 rounded-md px-1.5 py-0.5">
+                          <button onClick={() => handleAdjustQuantity(entry.id, -1)} className="p-1 rounded hover:bg-secondary text-muted-foreground/60 hover:text-primary transition-colors">
+                            <Minus className="w-2.5 h-2.5" />
+                          </button>
+                          <span className="text-xs font-bold text-white min-w-[12px] text-center select-none">{entry.quantity}</span>
+                          <button onClick={() => handleAdjustQuantity(entry.id, 1)} className="p-1 rounded hover:bg-secondary text-muted-foreground/60 hover:text-primary transition-colors">
+                            <Plus className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
                       </div>
-                      <button onClick={() => handleRemoveFood(entry.id)} className="p-1 ml-2 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors">
+                      <button onClick={() => handleRemoveFood(entry.id)} className="p-1.5 rounded hover:bg-destructive/20 text-muted-foreground/50 hover:text-destructive transition-colors">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>

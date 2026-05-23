@@ -9,7 +9,7 @@ import SleepCheckIn from "@/components/SleepCheckIn";
 import StressCheckIn from "@/components/StressCheckIn";
 import RecoveryScoreCard from "@/components/RecoveryScoreCard";
 import WellnessScoreCard from "@/components/WellnessScoreCard";
-import { loadState, saveState, useSyncState, getDayNumber, getWeekNumber, getTodayWorkoutType, getStreak, getWeekWorkoutCount, getConsecutiveWorkoutDays, getWeeklyChallenge, getLevel, getDietLog, getToday, calculateRecoveryScore, calculateWellnessScore, calculateSleepHours, getMindfulnessStreak, calculateSkippedDays } from "@/lib/store";
+import { loadState, saveState, useSyncState, getDayNumber, getWeekNumber, getTodayWorkoutType, getStreak, getWeekWorkoutCount, getConsecutiveWorkoutDays, getWeeklyChallenge, getLevel, getDietLog, getToday, calculateRecoveryScore, calculateWellnessScore, calculateSleepHours, getMindfulnessStreak, calculateSkippedDays, patchState } from "@/lib/store";
 import { getDailyQuote, getDailyTip } from "@/lib/quotes";
 import { shouldShowBackupReminder, dismissBackupReminder, consumeRestoreVerificationNotice, ensureWeeklyRestorePoint, type RestoreVerificationNotice } from "@/lib/backup";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
