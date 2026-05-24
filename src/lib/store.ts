@@ -44,6 +44,7 @@ export interface SleepLog {
   wakeTime: string;
   quality: number; // 1-5
   hoursSlept: number;
+  tags?: string[];
 }
 
 export interface RestDayLog {
@@ -612,9 +613,9 @@ export const defaultSettings: AppSettings = {
   customPlaylists: [],
   strictMode: false,
   partialCountsTowardStreak: true,
-  targetSleepHours: 8,
-  targetBedtime: '22:00',
-  targetWakeTime: '06:00',
+  targetSleepHours: 7,
+  targetBedtime: '02:00',
+  targetWakeTime: '09:00',
   sleepReminderEnabled: false,
   sleepReminderTime: '07:00',
   breathingReminderTime: '08:00',

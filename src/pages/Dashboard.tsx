@@ -122,11 +122,11 @@ export default function Dashboard() {
     if (ft.sleepTracking && state.lastSleepCheckDate !== today) setShowSleepCheckIn(true);
   }, []);
 
-  const logSleep = useCallback((bedtime: string, wakeTime: string, quality: number) => {
+  const logSleep = useCallback((bedtime: string, wakeTime: string, quality: number, tags?: string[]) => {
     const hours = calculateSleepHours(bedtime, wakeTime);
     patchState(s => {
       s.sleepLogs = s.sleepLogs.filter(l => l.date !== today);
-      s.sleepLogs.push({ date: today, bedtime, wakeTime, quality, hoursSlept: hours });
+      s.sleepLogs.push({ date: today, bedtime, wakeTime, quality, hoursSlept: hours, tags: tags || [] });
       s.lastSleepCheckDate = today;
     });
     setShowSleepCheckIn(false);
@@ -343,8 +343,8 @@ export default function Dashboard() {
               <SleepCheckIn
                 onSubmit={logSleep}
                 onDismiss={() => setShowSleepCheckIn(false)}
-                defaultBedtime={state.settings.targetBedtime}
-                defaultWakeTime={state.settings.targetWakeTime}
+                defaultBedtime={state.settings.targetBedtime === '22:00' ? '02:00' : (state.settings.targetBedtime || '02:00')}
+                defaultWakeTime={state.settings.targetWakeTime === '06:00' ? '09:00' : (state.settings.targetWakeTime || '09:00')}
               />
             )}
             {showStress && (
